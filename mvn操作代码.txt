@@ -1,0 +1,889 @@
+进入项目目录  
+mvn clean package 清理已有包，并重新打包
+
+进入架包同一目录，运行架包,并临时赋予属性
+java -jar xxx.jar --server.port=1234   零时在1234端口运行xxx项目
+java -jar xxx.jar --spring.profiles.active=peer1  以peer的环境运行项目
+
+eureka-server-0.0.1-SNAPSHOT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**************************启动测试***********************************************************
+
+注册中心
+绝对路径 D:\studyplace\springcloud\eureka-server\target
+java -jar D:\studyplace\springcloud\eureka-server\target\eureka-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer1
+java -jar eureka-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer1		http://localhost:1001/
+
+java -jar D:\studyplace\springcloud\eureka-server\target\eureka-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer2
+java -jar eureka-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer2		http://localhost:1002/	
+
+
+服务提供端
+java -jar D:\studyplace\springcloud\eurekaclient03\target\eurekaclient03-0.1-SNAPSHOT.jar --server.port=2001
+java -jar eurekaclient03-0.1-SNAPSHOT.jar --server.port=2001				http://localhost:2001/hello	
+
+java -jar D:\studyplace\springcloud\eurekaclient03\target\eurekaclient03-0.1-SNAPSHOT.jar --server.port=2002
+java -jar eurekaclient03-0.1-SNAPSHOT.jar --server.port=2002				http://localhost:2002/hello
+
+java -jar D:\studyplace\springcloud\eurekaclient03\target\ribbon-consumer-0.0.1-SNAPSHOT.jar	
+java -jar ribbon-consumer-0.0.1-SNAPSHOT.jar						http://localhost:9000/ribbon-consumer	
+
+
+服务的调用端
+feign 无参数
+java -jar feign-consumer-0.0.1-SNAPSHOT.jar						http://localhost:9001/feign-consumer	
+
+feign 多参数
+java -jar feign-consumer-0.0.1-SNAPSHOT.jar						http://localhost:9001/feign-consumer1
+	
+											
+											http://localhost:9001/feign-consumer2
+											http://localhost:9001/feign-consumer3
+
+hytrix 熔断机制
+java -jar D:\studyplace\springcloud\hystrix-consumer\target\hystrix-consumer-0.0.1-SNAPSHOT.jar --server.port=4001
+											http://localhost:4001/hystrix-consumer											
+hytrix 熔断机监控面板
+java -jar D:\studyplace\springcloud\dashbord-hystrix-consumer\target\dashboard-hystrix-consumer-0.0.1-SNAPSHOT.jar --server.port=5001
+											http://localhost:5001/hystrix
+											http://localhost:2001/hystrix.stream
+
+配置中心
+服务端
+java -jar D:\studyplace\springcloud\spring-cloud-config-server\target\spring-cloud-config-server-0.0.1-SNAPSHOT.jar --server.port=7001
+java -jar D:\studyplace\springcloud\spring-cloud-config-server\target\spring-cloud-config-server-0.0.1-SNAPSHOT.jar --server.port=7002
+											http://localhost:7001/neo-config-dev.properties
+											http://localhost:7002/neo-config-dev.properties
+
+客户端
+java -jar D:\studyplace\springcloud\spring-cloud-config-client\target\spring-cloud-config-cleint-0.0.1-SNAPSHOT.jar --server.port=7050
+											http://localhost:7050/hello
+											测试：
+											1.修改git配置   
+											2.使用 http://localhost:7050/actuator/refresh 刷新配置
+											返回[  "config.client.version",  "neo.hello"]
+											3.http://localhost:7050/hello
+改用消息总线测试，某一台客户机接受webhook通知
+											注意要启动多台客户机测试
+											使用 http://localhost:7050/actuator/buss-refresh 通知一台客户机，总线上其余客户机也会同步得到通知
+
+改用消息总线测试，某一台配置中心服务机接受webhook通知
+											注意要启动多台客户机测试
+											使用 http://localhost:7001/actuator/buss-refresh 通知服务机，其余服务机和客户机也会同步得到通知
+
+
+			
+api-gateway
+传统路由测试
+java -jar api-gateway-0.0.1-SNAPSHOT.jar						http://localhost:5555/api-a/hello
+配置：
+spring.application.name=api-gateway
+server.port=5555
+eureka.client.serviceUrl.defaultZone=http://peer1:1001/eureka/,http://peer2:1002/eureka/
+
+zuul.routes.api-a-url.path=/api-a/**
+zuul.routes.api-a-url.url=http://localhost:2001/
+
+面向服务配置路由
+zuul.routes.api-a-url.path=/api-a/**							http://localhost:5555/api-a/hello
+zuul.routes.api-a-url.serviceId=hello-service
+
+zuul.routes.api-b-url.path=/api-b/**							http://localhost:5555/api-b/feign-consumer1
+zuul.routes.api-b-url.serviceId=feign-consumer						http://localhost:5555/api-b/feign-consumer2
+
+
+
+测试zuul的过滤功能
+创建AccessFilter									http://localhost:5555/api-a/hello
+											http://localhost:5555/api-a/hello?accessToken=token
+
+
+
+
+
+java -jar server-eureka.jar --spring.profiles.active=dev
+
+
+
+----注册中心----begin-----------------------------------------------------------------------------------------------------------------------------------
+注册中心
+作用是服务的注册和发现
+
+1.pom包配置
+创建一个springboot项目，pom.xml中添加如下配置：
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+2.配置文件
+application.properties配置如下：
+spring.application.name=eureka-server
+server.port=1001
+eureka.instance.hostname=localhost
+#禁止本应用向自己注册
+#表示是否将自己注册到Eureka Server，默认为true。
+eureka.client.register-with-eureka=false
+#表示是否从Eureka Server获取注册信息，默认为true。
+eureka.client.fetch-registry=false
+
+#设置与Eureka Server交互的地址，查询服务和注册服务都需要依赖这个地址。默认是http://localhost:8761/eureka ；多个地址可使用 , 分隔。
+eureka.client.service-url.defaultZone=http://${eureka.instance.hostname}:${server.port}/eureka/
+
+3.启动类
+启动类中添加@EnableDiscoveryClient注解
+@EnableEurekaServer
+@SpringBootApplication
+public class EurekaServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(EurekaServerApplication.class, args);
+	}
+
+}
+
+启动检验
+启动工程后，访问：http://localhost:1001/
+
+
+双节点启动
+1创建application-peer1.properties，作为peer1服务中心的配置，并将serviceUrl指向peer2
+
+spring.application.name=spring-cloud-eureka
+server.port=1001
+eureka.instance.hostname=peer1
+
+eureka.client.serviceUrl.defaultZone=http://peer2:1002/eureka/
+
+
+2、创建application-peer2.properties，作为peer2服务中心的配置，并将serviceUrl指向peer1
+
+spring.application.name=spring-cloud-eureka
+server.port=1002
+eureka.instance.hostname=peer2
+
+eureka.client.serviceUrl.defaultZone=http://peer1:1001/eureka/
+
+3.host转换
+在hosts文件中加入如下配置
+127.0.0.1 peer1  
+127.0.0.1 peer2  
+
+4、打包启动
+
+依次执行下面命令
+#打包
+mvn clean package
+# 分别以peer1和peeer2 配置信息
+--------------------启动eureka--------------------------------------------------启动eureka------------------------------
+java -jar D:\studyplace\springcloud\eureka-server\target\eureka-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer1
+java -jar eureka-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer1		http://localhost:1001/
+
+java -jar D:\studyplace\springcloud\eureka-server\target\eureka-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer2
+java -jar eureka-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer2		http://localhost:1002/	
+--------------------启动eureka--------------------------------------------------启动eureka------------------------------
+
+----注册中心----end-----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+----服务的提供与调用----begin-----------------------------------------------------------------------------------------------------------------------------------
+
+服务的提供方 注册服务到注册中心，服务的消费方从注册中心拉取服务
+提供方--------注册中心--------消费方
+
+提供方
+1.pom   使用架包
+
+2.配置文件
+spring.application.name=hello-service //提供给消费端
+server.port=2001
+eureka.client.serviceUrl.defaultZone=http://peer1:1001/eureka/,http://peer2:1002/eureka/
+
+3启动类使用注解   注册到注册中心  版本不同，注解会有差异
+
+4.暴露端口
+public class DcController {
+
+    @Autowired
+    DiscoveryClient discoveryClient;
+    @RequestMapping("/hello")
+    public String index(){
+       return "hello";
+	}
+ }
+
+消费方与提供方基本一致，多了架包
+1.pom 使用架包
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+2.配置文件
+spring.application.name=feign-consumer
+server.port=9001
+eureka.client.serviceUrl.defaultZone=http://peer1:1001/eureka/,http://peer2:1002/eureka/
+
+3,启动类
+添加@EnableDiscoveryClient和@EnableFeignClients注解。
+@EnableDiscoveryClient  //启用服务注册与发现
+@EnableFeignClients	//启用feign进行远程调用
+@SpringBootApplication
+public class FeignConsumerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(FeignConsumerApplication.class, args);
+	}
+
+}
+
+4、feign调用实现
+/**
+ * 使用注解指定服务名来绑定服务
+ * 再使用SpringSVC注解来绑定具体该服务提供得REST接口
+ */
+@FeignClient("hello-service")
+public interface HelloService {
+
+	@RequestMapping("/hello")
+	String hello();
+
+}
+
+name:远程服务名，及spring.application.name配置的名称
+此类中的方法和远程服务中contoller中的方法名和参数需保持一致。
+
+
+5、web层调用远程服务
+将HelloService注入到controller层，像普通方法一样去调用即可。
+
+/**
+ * 创建controller来实现对feign客户端的调用
+ * 注入helloservice实列，并在该controller函数中绑定helloservice服务的客户端，来向该服务的/hello接口调用
+ */
+@RestController
+public class ConsumerController {
+	@Autowired
+	HelloService helloService;
+
+
+	@RequestMapping(value = "/feign-consumer",method = RequestMethod.GET)
+	public  String helloConsumer(){
+		return helloService.hello();
+	}
+
+}
+--------服务的提供与调用---end-----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+----熔断器----begin-----------------------------------------------------------------------------------------------------------------------------------
+
+熔断器作用在服务调用端，通过快速失败服务，防止服务大面积雪崩。
+
+在服务的调用端增加熔断配置即可。
+
+1、配置文件
+application.properties添加这一条：
+feign.hystrix.enabled=true
+
+2、创建回调类
+创建HelloRemoteHystrix类继承与HelloRemote实现回调的方法
+
+3启动类使用注解   注册到注册中心  版本不同，注解会有差异
+
+4.暴露端口
+public class DcController {
+
+    @Autowired
+    DiscoveryClient discoveryClient;
+    @RequestMapping("/hello")
+    public String index(){
+       return "hello";
+	}
+ }
+
+消费方与提供方基本一致，多了架包
+1.pom 使用架包
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+2.配置文件
+spring.application.name=feign-consumer
+server.port=9001
+eureka.client.serviceUrl.defaultZone=http://peer1:1001/eureka/,http://peer2:1002/eureka/
+
+3,启动类
+添加@EnableDiscoveryClient和@EnableFeignClients注解。
+@EnableDiscoveryClient  //启用服务注册与发现
+@EnableFeignClients	//启用feign进行远程调用
+@SpringBootApplication
+public class FeignConsumerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(FeignConsumerApplication.class, args);
+	}
+
+}
+
+4、feign调用实现
+/**
+ * 使用注解指定服务名来绑定服务
+ * 再使用SpringSVC注解来绑定具体该服务提供得REST接口
+ */
+@FeignClient("hello-service")
+public interface HelloService {
+
+	@RequestMapping("/hello")
+	String hello();
+
+}
+
+5、web层调用远程服务
+将HelloService注入到controller层，像普通方法一样去调用即可。
+
+/**
+ * 创建controller来实现对feign客户端的调用
+ * 注入helloservice实列，并在该controller函数中绑定helloservice服务的客户端，来向该服务的/hello接口调用
+ */
+@RestController
+public class ConsumerController {
+	@Autowired
+	HelloService helloService;
+
+
+	@RequestMapping(value = "/feign-consumer",method = RequestMethod.GET)
+	public  String helloConsumer(){
+		return helloService.hello();
+	}
+
+}
+----熔断器----end-----------------------------------------------------------------------------------------------------------------------------------
+
+
+----熔断监控Hystrix Dashboard和Turbine----begin-----------------------------------------------------------------------------------------------------------------------------------
+
+--------------------Hystrix Dashboard----------------
+
+在熔断项目上修改
+1.架包
+		<!--单个熔断监控用-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+
+3启动类
+启动类添加启用Hystrix Dashboard和熔断器
+
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClients
+@EnableHystrixDashboard
+@EnableCircuitBreaker
+public class ConsumerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerApplication.class, args);
+    }
+}
+
+测试
+http://localhost:5001/hystrix
+http://localhost:2001/hystrix.stream
+
+
+--------------------turbine---------  还没测试完-------
+在复杂的分布式系统中，相同服务的节点经常需要部署上百甚至上千个，很多时候，运维人员希望能够把相同服务的节点状态以一个整体集群的形式展现出来，这样可以更好的把握整个系统的状态。 
+为此，Netflix提供了一个开源项目（Turbine）来提供把多个hystrix.stream的内容聚合为一个数据源供Dashboard展示。
+
+1.架包
+<!--集群的熔断监控用-->
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-turbine</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-netflix-turbine</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+    </dependency>
+</dependencies>
+
+----熔断监控Hystrix Dashboard和Turbine----end-----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+----Spring Cloud Config----begin--------使用git示例---------------------------------------------------------------------------------------------------------------------------
+服务如何从配置中心读取文件，配置中心如何从远程git读取配置文件
+
+
+Spring Cloud Config项目是一个解决分布式系统的配置管理方案。它包含了Client和Server两个部分，server提供配置文件的存储、以接口的形式将配置文件的内容提供出去，client通过接口获取数据、并依据此数据初始化自己的应用。Spring cloud使用git或svn存放配置文件，默认情况下使用git，我们先以git为例做一套示例。
+
+服务端的作用：应用启动，会与git交互，获得配置信息，并缓存到本地。
+2019-05-23 21:06:34.859  INFO 11148 --- [nio-7001-exec-8] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2019-05-23 21:06:34.940  INFO 11148 --- [nio-7001-exec-8] o.s.c.c.s.e.NativeEnvironmentRepository  : Adding property source: file:/C:/Users/zkpc/AppData/Local/Temp/config-repo-1294980653572861670/neo-config-dev.properties
+2019-05-23 21:06:46.335  INFO 11148 --- [io-7001-exec-10] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2019-05-23 21:06:46.375  INFO 11148 --- [io-7001-exec-10] o.s.c.c.s.e.NativeEnvironmentRepository  : Adding property source: file:/C:/Users/zkpc/AppData/Local/Temp/config-repo-1294980653572861670/first/neo-config-pro.properties
+提供接口，供客户端调用
+
+server 端--------------------------------------------------------------------------------
+1.git上建立项目config-repo.git
+/first/neo-config-pro.properties
+内容：
+neo.hello: hello im first and pro
+
+2.添加架包
+	<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-server</artifactId>
+			<version>2.1.0.RC2</version>
+	</dependency>
+
+3.配置文件
+server:
+  port: 7001
+spring:
+  application:
+    name: spring-cloud-config-server
+  cloud:
+    config:
+      server:
+        git:
+#          uri: https://github.com/ityouknow/spring-cloud-starter/
+          #https://github.com/zk0906/config-repo.git
+          uri: https://github.com/zk0906/config-repo.git         # 配置git仓库的地址
+          search-paths: first                             # git仓库地址下的相对地址，可以配置多个，用,分割。
+          username: 14496505@qq.com
+          password: gt1380846
+
+3、启动类
+启动类添加@EnableConfigServer，激活对配置中心的支持
+
+@EnableConfigServer
+@SpringBootApplication
+public class ConfigServerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigServerApplication.class, args);
+    }
+}
+到此server端相关配置已经完成
+
+测试server端是否可以读取到github上面的配置信息，
+直接访问：http://localhost:7001/neo-config/pro
+
+返回
+{"name":"neo-config","profiles":["pro"],"label":null,"version":"8f9d74191c8d92d1105b31e9e893c4bb8bcf6d21","state":null,"propertySources":[{"name":"https://github.com/zk0906/config-repo.git/first/neo-config-pro.properties","source":{"neo.hello":"hello im first and pro"}}]}
+
+
+规则
+仓库中的配置文件会被转换成web接口，访问可以参照以下的规则：
+
+/{application}/{profile}[/{label}]
+/{application}-{profile}.yml
+/{label}/{application}-{profile}.yml
+/{application}-{profile}.properties
+/{label}/{application}-{profile}.properties
+以neo-config-dev.properties为例子，它的application是neo-config，profile是dev。client会根据填写的参数来选择读取对应的配置。
+
+
+
+client 端-------------------------------------------------------------
+主要展示如何在业务项目中去获取server端的配置信息
+
+1.架包
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-config</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+
+
+3启动类
+启动类添加启用Hystrix Dashboard和熔断器
+
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClients
+@EnableHystrixDashboard
+@EnableCircuitBreaker
+public class ConsumerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerApplication.class, args);
+    }
+}
+
+
+具体看代码
+
+
+
+
+配置中心服务化与高可用
+服务化：配置中心与客户端通过使用注册中心解耦，配置中心注册到注册中心，配置中心的客户端到注册中心通过服务名去获取地址
+
+配置中心改造
+1.pom 作为注册中心客户端
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+
+2.配置文件
+application.yml
+server:
+  port: 7001
+spring:
+  application:
+    name: spring-cloud-config-server
+  cloud:
+    config:
+      server:
+        git:
+#          uri: https://github.com/ityouknow/spring-cloud-starter/
+          #https://github.com/zk0906/config-repo.git
+          uri: https://github.com/zk0906/config-repo.git         # 配置git仓库的地址
+          search-paths: first                             # git仓库地址下的相对地址，可以配置多个，用,分割。
+          username: 14496505@qq.com
+          password: gt1380846
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://peer1:1001/eureka/,http://peer2:1002/eureka/"
+
+3.启动类
+@EnableDiscoveryClient//注册到注册中心
+@EnableConfigServer//开启配置中心
+@SpringBootApplication
+public class SpringCloudConfigServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringCloudConfigServerApplication.class, args);
+	}
+
+}
+
+客户端改造
+1.pom 作为注册中心客户端
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+
+2.配置文件
+bootstrap.yml 将使用服务名代替url，注意，要在application.yml启动前获得配置属性，就要将操作放在bootstrap.yml中，注意二者的先后
+spring:
+  cloud:
+    config:
+      name: neo-config
+      profile: dev
+#      uri: http://localhost:7001
+      label: master
+      discovery:      #使用服务名用需要开启下面三处配置
+        enabled: true #开启Config服务发现支持
+        service-id: spring-cloud-config-server #如果server作为服务已经注册到注册中心，此处可以写服务名，而不必用url
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://peer1:1001/eureka/,http://peer2:1002/eureka/"
+
+
+
+3.启动类
+同理开启服务发现功能
+@EnableDiscoveryClient
+@SpringBootApplication
+public class SpringCloudConfigClientApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringCloudConfigClientApplication.class, args);
+	}
+
+}
+
+
+手动刷新refresh
+-------------------------------------------------
+客户端 通过post方法缺乏各自的/fefresh
+
+使用配置中心客户端进行改造
+1.架包
+	<!--客户端主动感知配置西信息变化，通过POST方法触发各自的/refresh-->
+	<!--增加了spring-boot-starter-actuator包，spring-boot-starter-actuator是一套监控的功能，可以监控程序在运行时状态，其中就包括/refresh的功能。-->
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-actuator</artifactId>
+	</dependency>
+
+2.开启更新机制
+@RestController
+@RefreshScope //使用该注解的类，会在接到SpringCloud配置中心配置刷新的时候，自动将新的配置更新到该类对应的字段中。
+public class HelloController {
+
+    //使用@Value注解来获取server端参数的值
+    @Value("${neo.hello}")
+    private String hello;
+
+    @RequestMapping("/hello")
+    public String from(){
+        return  this.hello;
+    }
+
+}
+
+3、测试
+springboot 1.5.X 以上默认开通了安全认证，所以需要在配置文件application.properties添加以下配置
+
+management.security.enabled=false
+
+Spring Boot 2.x中的management.security.enabled=false无效问题 
+方式1：
+# 启用端点 env
+management.endpoint.env.enabled=true
+# 暴露端点 env 配置多个,隔开
+management.endpoints.web.exposure.include=env
+方式2：
+方式1中的暴露方式需要一个一个去开启需要暴露的端点，方式2直接开启和暴露所有端点
+management.endpoints.web.exposure.include=*
+使用方式2测试成功
+
+
+测试：
+1.修改git配置
+2.使用
+http://localhost:7050/actuator/refresh 刷新配置
+返回
+[
+  "config.client.version",
+  "neo.hello"
+]
+3.
+http://localhost:7050/hello
+
+
+使用webhook，自动刷新配置
+GitHub的webhook可以提供一个push动作的钩子，每当你push成功的时候，会请求一个你指定的URL。
+
+
+
+使用github提供的webhook服务完成自动部署网站
+所以自动部署主要实现方式就是：
+
+- 修改代码 push
+- github发送请求给你的网站服务器
+- 网站服务器收到更新请求，执行自动部署脚本
+- 自动部署脚本执行代码拉取，打包，移动文件等动作完成网站的更新部署
+
+todo  脚本的学习，服务器的ip的指定
+
+
+
+
+高可用：使用集群
+
+
+
+
+
+----
+Spring Cloud Config
+----end-----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+--------配置中心和消息总线（配置中心终极版）-----------begin------------------------------------------------------------------------------------------------------------------------
+配置中心又变化时，refresh一个客户端还行，refresh大量的客户端就不科学了，启用消息总线功能，通知客户端1，客户端会通知同身份的其他客户端集群。
+
+1.架包
+<!--消息总线，可以批量刷新端口-->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+	<version>2.1.0.RC2</version>
+</dependency>
+
+2.配置文件
+server:
+  port: 7050
+spring:
+  application:
+    name: spring-cloud-config-cleint
+  cloud:
+    bus:                  #消息总线的配置
+      trace:
+        enabled: true      #开启消息跟踪
+  rabbitmq:                #配置文件需要增加RebbitMq的相关配置
+    host:
+    port: 15672
+    username: guest
+    password: guest
+
+#刷新端口,关闭安全验证
+#在1.5.x版本中通过management.security.enabled=false来暴露所有端点
+#Spring Boot 2.x 使用下面方式
+#方式1
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+优化：
+给客户端加上消息总线功能后，刷新一台客户机，其余总线上的客户机，也会同步得到刷新，将刷新操作放到server上，更科学，给客户机和sever机器同时开启总线功能，通知操作给server，总线上的所有机器都会得到配置更新的信息
+给server同样的处理
+
+局部刷新，消息追踪  todo
+
+
+
+todo 学会mq管理后台的使用								
+测试前，需要启动mq   管理员模式启动 net start RabbitMQ
+以下是管理后台的，如有需要，可以在mq前启动
+"D:\Program Files\RabbitMQ Server\rabbitmq_server-3.7.7\sbin\rabbitmq-plugins.bat" enable rabbitmq_management
+
+Created new connection: rabbitConnectionFactory#1eb9bf60:0/SimpleConnection@70ee1963 [delegate=amqp://guest@127.0.0.1:5672/, localPort= 53164]
+
+
+
+
+--------配置中心和消息总线（配置中心终极版）------------end-----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+--------Spring Cloud Zuul-----------begin------------------------------------------------------------------------------------------------------------------------
+配置中心又变化时，refresh一个客户端还行，refresh大量的客户端就不科学了，启用消息总线功能，通知客户端1，客户端会通知同身份的其他客户端集群。
+
+1.架包
+<!--消息总线，可以批量刷新端口-->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+	<version>2.1.0.RC2</version>
+</dependency>
+
+2.配置文件
+server:
+  port: 7050
+spring:
+  application:
+    name: spring-cloud-config-cleint
+  cloud:
+    bus:                  #消息总线的配置
+      trace:
+        enabled: true      #开启消息跟踪
+  rabbitmq:                #配置文件需要增加RebbitMq的相关配置
+    host:
+    port: 15672
+    username: guest
+    password: guest
+
+#刷新端口,关闭安全验证
+#在1.5.x版本中通过management.security.enabled=false来暴露所有端点
+#Spring Boot 2.x 使用下面方式
+#方式1
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+优化：
+给客户端加上消息总线功能后，刷新一台客户机，其余总线上的客户机，也会同步得到刷新，将刷新操作放到server上，更科学，给客户机和sever机器同时开启总线功能，通知操作给server，总线上的所有机器都会得到配置更新的信息
+给server同样的处理
+
+局部刷新，消息追踪  todo
+
+
+
+todo 学会mq管理后台的使用								
+测试前，需要启动mq   管理员模式启动 net start RabbitMQ
+以下是管理后台的，如有需要，可以在mq前启动
+"D:\Program Files\RabbitMQ Server\rabbitmq_server-3.7.7\sbin\rabbitmq-plugins.bat" enable rabbitmq_management
+
+Created new connection: rabbitConnectionFactory#1eb9bf60:0/SimpleConnection@70ee1963 [delegate=amqp://guest@127.0.0.1:5672/, localPort= 53164]
+
+
+
+
+--------Spring Cloud Zuul------------end-----------------------------------------------------------------------------------------------------------------------
+Spring Cloud Zuul路由是微服务架构的不可或缺的一部分，提供动态路由，监控，弹性，安全等的边缘服务。
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,1166 @@
+<import src="/components/wxParse/wxParse.wxml"/>
+<import src="/components/templates/templates.wxml"/>
+<view class="app" hidden="{{page_hidden}}">
+<web-view wx-if="{{false}}" src="{{false}}"></web-view>
+<component-share pageQRCodeData="{{pageQRCodeData}}"></component-share>
+<component-backhome backToHomePage="{{backToHomePage}}"></component-backhome>
+<component-reward-point rewardPointObj="{{rewardPointObj}}"></component-reward-point>
+<component-shop-vip shopVipModal="{{shopVipModal}}"></component-shop-vip>
+<component-getUserInfo showGetUserInfo="{{showGetUserInfo}}"></component-getUserInfo>
+<component-filter filterShow="{{filterShow}}" chooseCateId="{{categoryId}}" form="{{classifyGroupForm}}" bind:confirm="filterConfirm"></component-filter>
+<component-formPay id="component-formPay" formInfo="{{formInfo}}"></component-formPay>
+<component-community-publish communityPublish="{{communityPublish}}"></component-community-publish>
+<component-community-publish-type communityPublishType="{{communityPublishType}}"></component-community-publish-type>
+<component-goodsShoppingCart id="component-goodsShoppingCart" bind:afterSelectedGoods="afterSelectGoods"></component-goodsShoppingCart>
+<component-sinkingModal></component-sinkingModal>
+<franchiseeTabbar franchiseeInfo="{{franchiseeInfo}}"></franchiseeTabbar>
+<view class="ele-container" wx:if="{{!text1.hidden}}">
+  <block wx:if="{{text1.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text1, real_value:real_value.form_data[text1.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text1.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text1, real_value:item.form_data[text1.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text1, real_value:real_value.form_data[text1.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text1.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text1, real_value:detail_data[text1.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text1, real_value:item.form_data[text1.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text1, real_value:item.form_data[text1.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!text2.hidden}}">
+  <block wx:if="{{text2.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text2, real_value:real_value.form_data[text2.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text2.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text2, real_value:item.form_data[text2.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text2, real_value:real_value.form_data[text2.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text2.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text2, real_value:detail_data[text2.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text2, real_value:item.form_data[text2.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text2, real_value:item.form_data[text2.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!text3.hidden}}">
+  <block wx:if="{{text3.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text3, real_value:real_value.form_data[text3.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text3.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text3, real_value:item.form_data[text3.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text3, real_value:real_value.form_data[text3.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text3.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text3, real_value:detail_data[text3.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text3, real_value:item.form_data[text3.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text3, real_value:item.form_data[text3.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture4.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture4, real_value:real_value.form_data[picture4.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture4.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture4, real_value:detail_data[picture4.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture4, real_value:item.form_data[picture4.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture4, real_value:item.form_data[picture4.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text5.hidden}}">
+  <block wx:if="{{text5.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text5, real_value:real_value.form_data[text5.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text5.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text5, real_value:item.form_data[text5.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text5, real_value:real_value.form_data[text5.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text5.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text5, real_value:detail_data[text5.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text5, real_value:item.form_data[text5.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text5, real_value:item.form_data[text5.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture6.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture6, real_value:real_value.form_data[picture6.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture6.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture6, real_value:detail_data[picture6.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture6, real_value:item.form_data[picture6.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture6, real_value:item.form_data[picture6.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text7.hidden}}">
+  <block wx:if="{{text7.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text7, real_value:real_value.form_data[text7.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text7.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text7, real_value:item.form_data[text7.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text7, real_value:real_value.form_data[text7.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text7.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text7, real_value:detail_data[text7.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text7, real_value:item.form_data[text7.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text7, real_value:item.form_data[text7.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture8.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture8, real_value:real_value.form_data[picture8.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture8.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture8, real_value:detail_data[picture8.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture8, real_value:item.form_data[picture8.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture8, real_value:item.form_data[picture8.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text9.hidden}}">
+  <block wx:if="{{text9.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text9, real_value:real_value.form_data[text9.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text9.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text9, real_value:item.form_data[text9.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text9, real_value:real_value.form_data[text9.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text9.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text9, real_value:detail_data[text9.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text9, real_value:item.form_data[text9.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text9, real_value:item.form_data[text9.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture10.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture10, real_value:real_value.form_data[picture10.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture10.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture10, real_value:detail_data[picture10.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture10, real_value:item.form_data[picture10.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture10, real_value:item.form_data[picture10.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!picture11.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture11, real_value:real_value.form_data[picture11.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture11.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture11, real_value:detail_data[picture11.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture11, real_value:item.form_data[picture11.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture11, real_value:item.form_data[picture11.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text12.hidden}}">
+  <block wx:if="{{text12.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text12, real_value:real_value.form_data[text12.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text12.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text12, real_value:item.form_data[text12.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text12, real_value:real_value.form_data[text12.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text12.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text12, real_value:detail_data[text12.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text12, real_value:item.form_data[text12.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text12, real_value:item.form_data[text12.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture13.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture13, real_value:real_value.form_data[picture13.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture13.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture13, real_value:detail_data[picture13.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture13, real_value:item.form_data[picture13.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture13, real_value:item.form_data[picture13.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text14.hidden}}">
+  <block wx:if="{{text14.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text14, real_value:real_value.form_data[text14.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text14.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text14, real_value:item.form_data[text14.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text14, real_value:real_value.form_data[text14.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text14.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text14, real_value:detail_data[text14.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text14, real_value:item.form_data[text14.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text14, real_value:item.form_data[text14.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture15.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture15, real_value:real_value.form_data[picture15.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture15.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture15, real_value:detail_data[picture15.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture15, real_value:item.form_data[picture15.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture15, real_value:item.form_data[picture15.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text16.hidden}}">
+  <block wx:if="{{text16.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text16, real_value:real_value.form_data[text16.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text16.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text16, real_value:item.form_data[text16.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text16, real_value:real_value.form_data[text16.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text16.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text16, real_value:detail_data[text16.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text16, real_value:item.form_data[text16.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text16, real_value:item.form_data[text16.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture17.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture17, real_value:real_value.form_data[picture17.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture17.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture17, real_value:detail_data[picture17.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture17, real_value:item.form_data[picture17.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture17, real_value:item.form_data[picture17.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text18.hidden}}">
+  <block wx:if="{{text18.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text18, real_value:real_value.form_data[text18.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text18.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text18, real_value:item.form_data[text18.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text18, real_value:real_value.form_data[text18.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text18.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text18, real_value:detail_data[text18.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text18, real_value:item.form_data[text18.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text18, real_value:item.form_data[text18.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture19.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture19, real_value:real_value.form_data[picture19.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture19.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture19, real_value:detail_data[picture19.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture19, real_value:item.form_data[picture19.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture19, real_value:item.form_data[picture19.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text20.hidden}}">
+  <block wx:if="{{text20.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text20, real_value:real_value.form_data[text20.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text20.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text20, real_value:item.form_data[text20.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text20, real_value:real_value.form_data[text20.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text20.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text20, real_value:detail_data[text20.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text20, real_value:item.form_data[text20.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text20, real_value:item.form_data[text20.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture21.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture21, real_value:real_value.form_data[picture21.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture21.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture21, real_value:detail_data[picture21.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture21, real_value:item.form_data[picture21.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture21, real_value:item.form_data[picture21.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!picture22.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture22, real_value:real_value.form_data[picture22.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture22.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture22, real_value:detail_data[picture22.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture22, real_value:item.form_data[picture22.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture22, real_value:item.form_data[picture22.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text23.hidden}}">
+  <block wx:if="{{text23.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text23, real_value:real_value.form_data[text23.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text23.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text23, real_value:item.form_data[text23.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text23, real_value:real_value.form_data[text23.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text23.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text23, real_value:detail_data[text23.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text23, real_value:item.form_data[text23.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text23, real_value:item.form_data[text23.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture24.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture24, real_value:real_value.form_data[picture24.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture24.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture24, real_value:detail_data[picture24.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture24, real_value:item.form_data[picture24.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture24, real_value:item.form_data[picture24.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!picture25.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture25, real_value:real_value.form_data[picture25.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture25.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture25, real_value:detail_data[picture25.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture25, real_value:item.form_data[picture25.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture25, real_value:item.form_data[picture25.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text26.hidden}}">
+  <block wx:if="{{text26.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text26, real_value:real_value.form_data[text26.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text26.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text26, real_value:item.form_data[text26.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text26, real_value:real_value.form_data[text26.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text26.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text26, real_value:detail_data[text26.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text26, real_value:item.form_data[text26.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text26, real_value:item.form_data[text26.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture27.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture27, real_value:real_value.form_data[picture27.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture27.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture27, real_value:detail_data[picture27.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture27, real_value:item.form_data[picture27.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture27, real_value:item.form_data[picture27.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!picture28.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture28, real_value:real_value.form_data[picture28.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture28.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture28, real_value:detail_data[picture28.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture28, real_value:item.form_data[picture28.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture28, real_value:item.form_data[picture28.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text29.hidden}}">
+  <block wx:if="{{text29.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text29, real_value:real_value.form_data[text29.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text29.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text29, real_value:item.form_data[text29.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text29, real_value:real_value.form_data[text29.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text29.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text29, real_value:detail_data[text29.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text29, real_value:item.form_data[text29.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text29, real_value:item.form_data[text29.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture30.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture30, real_value:real_value.form_data[picture30.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture30.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture30, real_value:detail_data[picture30.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture30, real_value:item.form_data[picture30.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture30, real_value:item.form_data[picture30.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text31.hidden}}">
+  <block wx:if="{{text31.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text31, real_value:real_value.form_data[text31.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text31.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text31, real_value:item.form_data[text31.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text31, real_value:real_value.form_data[text31.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text31.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text31, real_value:detail_data[text31.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text31, real_value:item.form_data[text31.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text31, real_value:item.form_data[text31.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture32.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture32, real_value:real_value.form_data[picture32.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture32.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture32, real_value:detail_data[picture32.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture32, real_value:item.form_data[picture32.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture32, real_value:item.form_data[picture32.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text33.hidden}}">
+  <block wx:if="{{text33.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text33, real_value:real_value.form_data[text33.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text33.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text33, real_value:item.form_data[text33.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text33, real_value:real_value.form_data[text33.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text33.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text33, real_value:detail_data[text33.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text33, real_value:item.form_data[text33.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text33, real_value:item.form_data[text33.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture34.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture34, real_value:real_value.form_data[picture34.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture34.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture34, real_value:detail_data[picture34.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture34, real_value:item.form_data[picture34.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture34, real_value:item.form_data[picture34.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text35.hidden}}">
+  <block wx:if="{{text35.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text35, real_value:real_value.form_data[text35.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text35.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text35, real_value:item.form_data[text35.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text35, real_value:real_value.form_data[text35.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text35.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text35, real_value:detail_data[text35.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text35, real_value:item.form_data[text35.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text35, real_value:item.form_data[text35.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture36.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture36, real_value:real_value.form_data[picture36.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture36.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture36, real_value:detail_data[picture36.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture36, real_value:item.form_data[picture36.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture36, real_value:item.form_data[picture36.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text37.hidden}}">
+  <block wx:if="{{text37.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text37, real_value:real_value.form_data[text37.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text37.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text37, real_value:item.form_data[text37.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text37, real_value:real_value.form_data[text37.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text37.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text37, real_value:detail_data[text37.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text37, real_value:item.form_data[text37.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text37, real_value:item.form_data[text37.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture38.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture38, real_value:real_value.form_data[picture38.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture38.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture38, real_value:detail_data[picture38.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture38, real_value:item.form_data[picture38.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture38, real_value:item.form_data[picture38.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text39.hidden}}">
+  <block wx:if="{{text39.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text39, real_value:real_value.form_data[text39.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text39.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text39, real_value:item.form_data[text39.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text39, real_value:real_value.form_data[text39.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text39.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text39, real_value:detail_data[text39.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text39, real_value:item.form_data[text39.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text39, real_value:item.form_data[text39.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture40.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture40, real_value:real_value.form_data[picture40.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture40.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture40, real_value:detail_data[picture40.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture40, real_value:item.form_data[picture40.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture40, real_value:item.form_data[picture40.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!picture41.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture41, real_value:real_value.form_data[picture41.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture41.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture41, real_value:detail_data[picture41.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture41, real_value:item.form_data[picture41.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture41, real_value:item.form_data[picture41.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text42.hidden}}">
+  <block wx:if="{{text42.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text42, real_value:real_value.form_data[text42.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text42.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text42, real_value:item.form_data[text42.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text42, real_value:real_value.form_data[text42.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text42.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text42, real_value:detail_data[text42.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text42, real_value:item.form_data[text42.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text42, real_value:item.form_data[text42.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture43.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture43, real_value:real_value.form_data[picture43.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture43.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture43, real_value:detail_data[picture43.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture43, real_value:item.form_data[picture43.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture43, real_value:item.form_data[picture43.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text44.hidden}}">
+  <block wx:if="{{text44.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text44, real_value:real_value.form_data[text44.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text44.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text44, real_value:item.form_data[text44.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text44, real_value:real_value.form_data[text44.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text44.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text44, real_value:detail_data[text44.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text44, real_value:item.form_data[text44.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text44, real_value:item.form_data[text44.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture45.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture45, real_value:real_value.form_data[picture45.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture45.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture45, real_value:detail_data[picture45.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture45, real_value:item.form_data[picture45.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture45, real_value:item.form_data[picture45.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text46.hidden}}">
+  <block wx:if="{{text46.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text46, real_value:real_value.form_data[text46.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text46.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text46, real_value:item.form_data[text46.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text46, real_value:real_value.form_data[text46.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text46.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text46, real_value:detail_data[text46.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text46, real_value:item.form_data[text46.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text46, real_value:item.form_data[text46.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture47.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture47, real_value:real_value.form_data[picture47.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture47.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture47, real_value:detail_data[picture47.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture47, real_value:item.form_data[picture47.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture47, real_value:item.form_data[picture47.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!picture48.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture48, real_value:real_value.form_data[picture48.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture48.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture48, real_value:detail_data[picture48.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture48, real_value:item.form_data[picture48.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture48, real_value:item.form_data[picture48.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text49.hidden}}">
+  <block wx:if="{{text49.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text49, real_value:real_value.form_data[text49.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text49.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text49, real_value:item.form_data[text49.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text49, real_value:real_value.form_data[text49.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text49.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text49, real_value:detail_data[text49.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text49, real_value:item.form_data[text49.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text49, real_value:item.form_data[text49.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture50.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture50, real_value:real_value.form_data[picture50.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture50.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture50, real_value:detail_data[picture50.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture50, real_value:item.form_data[picture50.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture50, real_value:item.form_data[picture50.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text51.hidden}}">
+  <block wx:if="{{text51.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text51, real_value:real_value.form_data[text51.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text51.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text51, real_value:item.form_data[text51.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text51, real_value:real_value.form_data[text51.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text51.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text51, real_value:detail_data[text51.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text51, real_value:item.form_data[text51.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text51, real_value:item.form_data[text51.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture52.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture52, real_value:real_value.form_data[picture52.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture52.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture52, real_value:detail_data[picture52.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture52, real_value:item.form_data[picture52.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture52, real_value:item.form_data[picture52.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text53.hidden}}">
+  <block wx:if="{{text53.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text53, real_value:real_value.form_data[text53.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text53.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text53, real_value:item.form_data[text53.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text53, real_value:real_value.form_data[text53.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text53.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text53, real_value:detail_data[text53.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text53, real_value:item.form_data[text53.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text53, real_value:item.form_data[text53.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture54.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture54, real_value:real_value.form_data[picture54.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture54.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture54, real_value:detail_data[picture54.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture54, real_value:item.form_data[picture54.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture54, real_value:item.form_data[picture54.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text55.hidden}}">
+  <block wx:if="{{text55.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text55, real_value:real_value.form_data[text55.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text55.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text55, real_value:item.form_data[text55.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text55, real_value:real_value.form_data[text55.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text55.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text55, real_value:detail_data[text55.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text55, real_value:item.form_data[text55.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text55, real_value:item.form_data[text55.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture56.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture56, real_value:real_value.form_data[picture56.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture56.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture56, real_value:detail_data[picture56.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture56, real_value:item.form_data[picture56.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture56, real_value:item.form_data[picture56.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text57.hidden}}">
+  <block wx:if="{{text57.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text57, real_value:real_value.form_data[text57.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text57.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text57, real_value:item.form_data[text57.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text57, real_value:real_value.form_data[text57.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text57.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text57, real_value:detail_data[text57.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text57, real_value:item.form_data[text57.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text57, real_value:item.form_data[text57.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture58.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture58, real_value:real_value.form_data[picture58.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture58.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture58, real_value:detail_data[picture58.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture58, real_value:item.form_data[picture58.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture58, real_value:item.form_data[picture58.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!picture59.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture59, real_value:real_value.form_data[picture59.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture59.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture59, real_value:detail_data[picture59.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture59, real_value:item.form_data[picture59.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture59, real_value:item.form_data[picture59.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text60.hidden}}">
+  <block wx:if="{{text60.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text60, real_value:real_value.form_data[text60.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text60.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text60, real_value:item.form_data[text60.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text60, real_value:real_value.form_data[text60.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text60.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text60, real_value:detail_data[text60.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text60, real_value:item.form_data[text60.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text60, real_value:item.form_data[text60.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture61.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture61, real_value:real_value.form_data[picture61.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture61.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture61, real_value:detail_data[picture61.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture61, real_value:item.form_data[picture61.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture61, real_value:item.form_data[picture61.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text62.hidden}}">
+  <block wx:if="{{text62.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text62, real_value:real_value.form_data[text62.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text62.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text62, real_value:item.form_data[text62.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text62, real_value:real_value.form_data[text62.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text62.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text62, real_value:detail_data[text62.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text62, real_value:item.form_data[text62.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text62, real_value:item.form_data[text62.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture63.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture63, real_value:real_value.form_data[picture63.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture63.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture63, real_value:detail_data[picture63.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture63, real_value:item.form_data[picture63.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture63, real_value:item.form_data[picture63.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!text64.hidden}}">
+  <block wx:if="{{text64.customFeature.segment == 'default_map' && real_value}}">
+  <!-- 在动态列表中的双栏中绑定地图 -->
+    <template is="zcText" data="{{data:text64, real_value:real_value.form_data[text64.customFeature.segment],  form_data: real_value.form_data}}"></template>
+  </block>
+  <block wx:elif="{{text64.customFeature.segment == 'default_map'}}">
+  <!-- 动态列表,动态容器 与详情页绑定地图 --> 
+    <template is="zcText" data="{{data:text64, real_value:item.form_data[text64.customFeature.segment], parent_form:item.form, form_data: item.form_data, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{real_value}}">
+    <template is="zcText" data="{{data:text64, real_value:real_value.form_data[text64.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[text64.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcText" data="{{data:text64, real_value:detail_data[text64.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcText" data="{{data:text64, real_value:item.form_data[text64.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcText" data="{{data:text64, real_value:item.form_data[text64.customFeature.segment], parent_form:item.form, detail_data: detail_data}}"></template>
+  </block>
+</view>
+
+<view class="ele-container" wx:if="{{!picture65.hidden}}">
+  <block wx:if="{{real_value}}">
+    <template is="zcPicture" data="{{data:picture65, real_value:real_value.form_data[picture65.customFeature.segment], detail_data: detail_data,form:form, group_data: real_value}}"></template>
+  </block>
+  <block wx:elif="{{detail_data[picture65.customFeature.segment] && in_dynamic_vessel !== 'true'}}">
+    <template is="zcPicture" data="{{data:picture65, real_value:detail_data[picture65.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:elif="{{in_dynamic_vessel === 'true'}}">
+    <template is="zcPicture" data="{{data:picture65, real_value:item.form_data[picture65.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+  <block wx:else>
+    <template is="zcPicture" data="{{data:picture65, real_value:item.form_data[picture65.customFeature.segment], detail_data: detail_data}}"></template>
+  </block>
+</view><view class="ele-container" wx:if="{{!breakline66.hidden}}">
+  <template is="zcBreakline" data="{{data:breakline66}}"></template>
+</view>
+
+</view>

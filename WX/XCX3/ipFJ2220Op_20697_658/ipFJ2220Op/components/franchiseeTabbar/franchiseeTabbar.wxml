@@ -1,0 +1,10 @@
+<cover-view class="bottomTabBar flex-wrap" wx:if="{{showTabbar}}">
+  <block wx:for="{{tabBar}}" wx:key="">  
+    <cover-view class="bottomTabBar-item flex-item {{item.active ? 'active' : ''}}" data-index="{{index}}" bindtap="tabBarTap">
+      <cover-image src="{{item.selectedIconPath}}" wx:if="{{item.active}}" class="bottomTabBar-img" mode="aspectFill"></cover-image>
+      <cover-image src="{{item.iconPath}}" wx:if="{{!item.active}}" class="bottomTabBar-img" mode="aspectFill"></cover-image>  
+      <cover-view>{{item.text}}</cover-view>    
+    </cover-view> 
+  </block> 
+</cover-view>
+<view  wx:if="{{showTabbar}}" class="franchiseeTabbar-place"></view>

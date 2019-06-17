@@ -1,0 +1,523 @@
+page {
+  background-color: rgba(243, 243, 243, 1);
+}
+
+.group-user {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  width: 100%;
+  height: 80rpx;
+  padding: 0 26rpx;
+  background-color: rgba(0, 0, 0, .4);
+  color: #fff;
+  font-size: 28rpx;
+  z-index: 1
+}
+
+.group-user image {
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 20rpx;
+}
+
+.group-user text {
+  max-width: 600rpx;
+}
+
+.slick-carousel-container {
+  width: 100%;
+  height: 750rpx;
+  overflow: hidden;
+  box-shadow: 0 -5px 6px rgba(46,46,46,0.05) inset;
+  position: relative;
+}
+
+.slick-carousel-container image {
+  width: 100%;
+  height: 100%;
+}
+
+swiper {
+  height: 750rpx;
+}
+
+.goods-describe .goods-describe-title,
+.goods-describe .goods-describe-price,
+.goods-describe .goods-describe-model {
+  display: block;
+  color: #333;
+}
+
+.goods-describe .goods-describe-title {
+  overflow: hidden;
+  padding-top: 10rpx;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 26rpx;
+}
+
+.goods-describe .goods-describe-price {
+  color: #ff7100;
+  margin: 20rpx 0 30rpx;
+  font-size: 30rpx;
+}
+
+.goods-describe .goods-describe-model {
+  position: relative;
+  color: #999;
+  font-size: 22rpx;
+}
+
+.goods-describe-price::after {
+  content: attr(data-virtual);
+  color: #999;
+  text-decoration: line-through;
+  margin-left: 12rpx;
+  font-size: 28rpx;
+}
+
+.goods-add {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.goods-minus,
+.goods-count,
+.goods-plus {
+  float: left;
+  text-align: center;
+  font-size: 28rpx;
+}
+
+.goods-minus,
+.goods-plus {
+  width: 50rpx;
+  height: 44rpx;
+  min-height: 42rpx;
+  border: 1rpx solid #e6e6e6;
+}
+
+.goods-count {
+  width: 60rpx;
+  height: 44rpx;
+  min-height: 42rpx;
+  border-top: 1rpx solid #ebebeb;
+  border-bottom: 1rpx solid #ebebeb;
+  color: #333;
+}
+
+.goods-plus {
+  color: #ff7100;
+  border-radius: 0px 4rpx 4rpx 0px;
+}
+
+.goods-minus {
+  border-radius: 4rpx 0px 0px 4rpx;
+}
+
+.goods-none {
+  background-color: #ff7100;
+  color: #fff;
+  border-color: #ff7100;
+  border-radius: 7rpx;
+}
+
+.page-dialog-close {
+  top: 20rpx;
+  right: 20rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border: 1rpx solid #d2d2d2;
+  color: #d2d2d2;
+  border-radius: 50%;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.page-dialog-close .icon-closes {
+  font-size: 28rpx;
+  vertical-align: top;
+  line-height: 44rpx;
+}
+
+/* 商品详情 */
+.good-header-dialog {
+  background-color: #fff;
+}
+
+.good-header-dialog .good-img {
+  position: relative;
+  max-height: 750rpx;
+  overflow: hidden;
+}
+
+.good-header-dialog .good-img image {
+  display: block;
+  width: 100%;
+}
+
+.good-header-dialog .good-info {
+  padding: 30rpx;
+}
+
+.good-info .good-info-title {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: #333;
+  line-height: 42rpx;
+  font-size: 32rpx;
+}
+
+.good-info .good-info-model {
+  padding: 15rpx 0 25rpx 0;
+  color: #999;
+  line-height: 28rpx;
+  font-size: 26rpx;
+}
+
+.good-info .good-info-model label {
+  margin-right: 20rpx;
+}
+
+.good-info .goods-describe {
+  position: relative;
+  width: 100%;
+}
+
+.good-info .goods-describe .goods-describe-price {
+  margin: 0;
+}
+
+.good-evaluate-dialog {
+  background-color: #fff;
+  margin-top: 16rpx;
+  padding: 0 30rpx;
+}
+
+.evaluate-count {
+  height: 79rpx;
+  border-bottom: 1px solid #f3f3f3;
+  line-height: 80rpx;
+  color: #434343;
+  font-size: 26rpx;
+}
+
+.evaluate-content {
+  font-size: 26rpx;
+}
+
+.evaluate-content .evaluate-list {
+  padding: 20rpx 0;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.evaluate-content .evaluate-list:last-child {
+  border-bottom: 0;
+}
+
+.evaluate-list .evaluate-list-score {
+  margin-bottom: 18rpx;
+}
+
+.evaluate-list-score image {
+  float: left;
+  width: 66rpx;
+  height: 66rpx;
+  border-radius: 50%;
+}
+
+.evaluate-list-score>text {
+  float: left;
+  width: calc(100% - 80rpx);
+  padding-left: 14rpx;
+  line-height: 33rpx;
+}
+
+.evaluate-list-score>text:nth-child(3) {
+  font-size: 20rpx;
+}
+
+.evaluate-list-score>text:nth-child(3)::after {
+  content: attr(data-type);
+  padding-left: 10rpx;
+  color: #666;
+}
+
+.evaluate-list .good-info {
+  margin-bottom: 30rpx;
+}
+
+.img-scroll {
+  height: 223rpx;
+  white-space: nowrap;
+  margin-bottom: 20rpx
+}
+
+.img-content {
+  display: inline-block;
+  width: 223rpx;
+  height: 223rpx;
+  margin-right: 11rpx;
+}
+
+.img-content image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.evaluate-list-time {
+  color: #999;
+  line-height: 40rpx;
+  font-size: 22rpx;
+}
+
+.evaluate-list-more {
+  text-align: center;
+  line-height: 80rpx;
+  color: #b0b0b0;
+}
+
+.good-describe-img {
+  margin-top: 16rpx;
+  background-color: #fff;
+  padding: 0 30rpx;
+}
+
+.good-describe-img>image {
+  display: block;
+  width: 100%;
+}
+
+.dialog-bottom {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  color: #fff;
+  background-color: #ff7100;
+  line-height: 90rpx;
+  text-align: center;
+}
+
+/* 购物车 */
+
+#communityBuyDialog .minus,
+#communityBuyDialog .plus {
+  position: relative;
+  display: inline-block;
+  font-size: 16px;
+  outline: 0 !important;
+  text-indent: -9999px;
+  overflow: hidden;
+  vertical-align: middle;
+  width: 60rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  font-weight: normal;
+  background-color: #f1f1f1;
+  color: #878787;
+  border-radius: 2px;
+  border: none;
+}
+
+#communityBuyDialog .minus.disabled,
+#communityBuyDialog .plus.disabled {
+  background-color: #f9f9f9;
+  color: #cacaca;
+}
+
+#communityBuyDialog .quantity input {
+  height: 60rpx;
+  min-height: 60rpx;
+  line-height: 60rpx;
+}
+
+#communityBuyDialog .minus:before,
+#communityBuyDialog .plus:before,
+#communityBuyDialog .plus:after {
+  position: absolute;
+  width: 8px;
+  height: 2px;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  background-color: #878787;
+  bottom: 0;
+  content: '';
+}
+
+#communityBuyDialog .plus:after {
+  width: 2px;
+  height: 8px;
+}
+
+#communityBuyDialog .minus.disabled:before,
+#communityBuyDialog .plus.disabled:before,
+#communityBuyDialog .plus.disabled:after {
+  background-color: #cacaca;
+}
+
+#communityBuyDialog .shopping-number {
+  font-size: 26rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+}
+
+#communityBuyDialog .page-bottom-dialog {
+  height: 892rpx;
+  background: #fff;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+}
+
+#communityBuyDialog .dialog-goods-header {
+  display: block;
+  padding: 20rpx 0 35rpx;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+#communityBuyDialog .communityBuyDialog-buy-num {
+  font-size: 24rpx;
+  margin-top: 30rpx;
+}
+
+#communityBuyDialog .communityBuyDialog-content {
+  height: 615rpx;
+  overflow: auto;
+}
+
+.thumb {
+  float: left;
+  width: 200rpx;
+  height: 130rpx;
+  margin-right: 20rpx;
+  position: relative;
+}
+
+.thumb .thumb-wrap {
+  width: 200rpx;
+  height: 200rpx;
+  position: absolute;
+  bottom: -5rpx;
+  left: 0;
+  border: 1px solid #f3f3f3;
+  border-radius: 4rpx;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.thumb .thumb-wrap image {
+  width: 100%;
+  height: 100%;
+}
+
+.goods-base-info {
+  margin-left: 55px;
+  display: inline-block;
+}
+
+.pay-goods-title,
+.pay-goods-price {
+  font-size: 36rpx;
+  padding-right: 50px;
+  line-height: 46rpx;
+}
+
+.pay-checked-text {
+  font-size: 24rpx;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.pay-goods-baseinfo {
+  min-height: 135rpx;
+}
+
+.pay-current-price {
+  color: #ff7100;
+}
+
+.pay-current-price text {
+  vertical-align: middle;
+  font-size: 18px;
+}
+
+.pay-goods-models .pills-list {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.model-title {
+  display: block;
+  margin-bottom: 26rpx;
+  font-size: 24rpx;
+}
+
+.pay-goods-models>view {
+  margin: 0;
+  padding: 30rpx 0 20rpx;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.pills-list label {
+  color: #353535;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  border: none;
+  padding: 0 20rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  background-color: #f2f2f2;
+  border-radius: 4rpx;
+  font-size: 22rpx;
+}
+
+.pills-list label.select {
+  position: relative;
+  color: #fff;
+  background-color: #ff7100;
+}
+
+.pills-list label.select:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+}
+
+.pay-goods-stock {
+  display: inline-block;
+  font-size: 24rpx;
+  color: #333;
+}
+
+.quantity input {
+  border: none;
+  height: 25px;
+  background-color: #f1f1f1;
+  padding: 0;
+  margin: 0 1px;
+  border-radius: 0;
+  width: 30px;
+  min-height: 25px;
+  line-height: 25px;
+  font-size: 14px;
+}

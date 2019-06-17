@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    config:
+      name: neo-config
+      profile: dev
+#      uri: http://localhost:7001
+      label: master
+      discovery:      #使用服务名用需要开启下面三处配置
+        enabled: true #开启Config服务发现支持
+        service-id: spring-cloud-config-server #如果server作为服务已经注册到注册中心，此处可以写服务名，而不必用url
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://peer1:1001/eureka/,http://peer2:1002/eureka/"

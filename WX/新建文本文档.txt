@@ -1,0 +1,20 @@
+🇨🇳wawooo:
+小程序账号：h90x1@icloud.com    密码：00aa00bb
+
+🇨🇳wawooo:
+微信号：19807484870    密码：jide0324
+
+
+
+去掉的代码
+
+<view style="width:100%;height:130rpx;overflow:hidden;margin-top:10px;">
+  <image style="width:100%;height:100%;" src="http://cdn.jisuapp.cn/zhichi_frontend/static/webapp/images/tec-support-new.png" mode="aspectFill"></image>
+</view>
+
+
+pages/page10004/page10004
+
+pages/page10002/page10002
+
+pages/page10002/page10002

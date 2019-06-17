@@ -1,0 +1,77 @@
+<component-getUserInfo showGetUserInfo="{{showGetUserInfo}}"></component-getUserInfo>
+<component-sinkingModal></component-sinkingModal>
+
+<view class="cart-header">
+  <view class="cart-type-box" style="{{'color:' + storeStyle.theme + ';border-color:' + storeStyle.theme}}">
+    <text style="{{'border-color:' + storeStyle.theme + (cartType == -1 ? ';background:' + storeStyle.theme : '')}}" class="{{ cartType == -1 ? 'selected' : ''}}" catchtap="changeCartType" data-type="-1">全部</text>
+    <text wx:if="{{goodsList[0].data.length}}" style="{{'border-color:' + storeStyle.theme + (cartType == 3 ? ';background:' + storeStyle.theme : '')}}" class="{{ cartType == 3 ? 'selected' : ''}}" catchtap="changeCartType" data-type="3">到店</text>
+    <text wx:if="{{goodsList[1].data.length}}" style="{{ cartType == 2 ? 'background:' + storeStyle.theme : '' }}" class="{{ cartType == 2 ? 'selected' : ''}}" catchtap="changeCartType" data-type="2">外卖</text>
+  </view>
+  <view style="{{'color:' + storeStyle.theme || '#ff7100'}}" class="pull-right ico-moon icon-success-tip shopping-cart-editor" wx:if="{{editing}}" catchtap="editComplete"></view>
+  <view class="pull-right ico-moon icon-shopping-cart-set shopping-cart-editor" wx:if="{{!editing}}" catchtap="switchToEdit"></view>
+  <view class="pull-right ico-moon icon-shopping-cart-switch shopping-cart-editor border-left" catchtap="toGoodsShoppingCart"></view>
+</view>
+<view class="shoppingCart-wrap page" id="shoppingCart">
+  <view class="shoppingCart-list-wrap">
+    <block wx:for="{{ goodsList }}" wx:key="">
+      <view class="shoppingCart-goods-list {{currentSelectGoodsType && currentSelectGoodsType != item.type ? 'disabled' : ''}}" wx:if="{{item.data.length && (cartType == item.type || cartType == -1)}}">
+        <view class="cart-type-title" catchtap="showGoodsList" data-type="{{ item.type }}">{{ item.type == '3' ? '到店' : '外卖'}}商品<text class="no-mix-tips" wx:if="{{currentSelectGoodsType && currentSelectGoodsType != item.type}}">（商品不能混合下单）</text><text class="pull-right ico-moon icon-rightarrow {{ item.show ? 'show' : '' }}"></text></view>
+        <block wx:if="{{ item.show }}">
+          <view wx:for="{{ item.data }}" wx:for-item="goods" wx:key="">
+            <label data-index="{{ index }}" style="{{ goods.selected ? 'color:' + storeStyle.theme : '' }}" class="shoppingCart-check-box {{ goods.selected ? 'checked ico-moon icon-success-tip' : '' }}" data-type="{{ item.type }}" catchtap="clickSelectGoods"></label>
+            <view class="shoppingCart-goods-content">
+              <view class="shoppingCart-goods-cover">
+                <image src="{{ goods.cover }}"></image>
+              </view>
+              <view class="goods-content-box">
+                <view class="shoppingCart-goods-title">{{ goods.title }}</view>
+                <view class="ellipsis shoppingCart-goods-model" wx:if="{{ goods.model_value_str }}">{{ goods.model_value_str }}</view>
+                <view class="shoppingCart-price-box">
+                  <text class="real-price" style="{{'color:' + storeStyle.theme }}" wx:if="{{goods.integral != '2' || (goods.price != 0 && goods.price != '0.00')}}">¥ {{ goods.price }}</text>
+                  <text class="real-price" style="{{'color:' + storeStyle.theme }}" wx:if="{{goods.integral == '2' && (goods.price != 0 || goods.price != '0.00')}}">+</text>
+                  <text class="real-price" style="{{'color:' + storeStyle.theme }}" wx:if="{{goods.integral == '2'}}">{{ goods.max_can_use_integral}}积分</text>
+                  <view class="goods-number-box pull-right" catchtap="stopPropagation">
+                    <view class="goods-num-mius" bindtap="clickMinusButton" data-type="{{ item.type }}" data-index="{{ index }}">-</view>
+                    <input type="number" class="goods-num-box" value="{{ goods.num }}" data-type="{{ item.type }}" data-index="{{ index }}" bindinput="inputGoodsCount"/>
+                    <view class="goods-num-plus" style="{{'color:' + storeStyle.theme }}" data-type="{{ item.type }}" bindtap="clickPlusButton" data-index="{{ index }}">+</view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </block>
+  </view>
+</view>
+<view class="shoppingCart-null {{ !cartConfig.convenient_shopping.goods ? 'margin310' : ''}}" wx:if="{{ !goodsList[0].data.length && !goodsList[1].data.length }}">
+  <image src="http://cdn.jisuapp.cn/static/webapp/images/xcx-goods/shopping-cart-null.png"></image>
+  <view class="shoppingCart-null-label">购物车空空哒</view>
+  <view class="go-home-page" style="{{'background:' + storeStyle.theme }}" bindtap="goToHomepage">去逛逛</view>
+</view>
+<view class="shoppingCart-bottom-nav" wx:if="{{ goodsList.length }}">
+  <label style="{{ selectAll ? 'color:' + storeStyle.theme : '' }}" class="shoppingCart-check-box {{ selectAll ? 'checked ico-moon icon-success-tip' : '' }}" bindtap="clickSelectAll"></label>
+  <text class="select-all" style="{{ selectAll ? 'color:' + storeStyle.theme : '' }}">全选</text>
+  <block wx:if="{{!editing}}">
+    <form report-submit="true" bindsubmit="goToPay">
+      <button formType="submit" style="{{'background:' + storeStyle.theme }}" class="pull-right shoppingCart-goto-pay" >结算({{ goodsCountToPay }})</button>
+    </form>
+    <view class="pull-right total-price-box">
+      <view class="shoppingCart-all-price" style="{{'color:' + storeStyle.theme }}">¥ {{ priceToPay }}</view>
+      <view class="no-contain-freight">不含运费</view>
+    </view>
+  </block>
+  <block wx:else>
+    <text class="pull-right mutiple-delete-btn" catchtap="showDeleteWindow">删除</text>
+  </block>
+</view>
+<view class="delete-tip-window" wx:if="{{ showDeleteWindow }}">
+  <view class="delete-box">
+    <view class="delete-tip">确定要删除所选商品吗？</view>
+    <view class="delete-btn-box">
+      <text bindtap="cancelDelete">取消</text>
+      <text wx:if="{{ deleteType == 'singel'}}" style="{{'color:' + storeStyle.theme}}" data-type="singel" class="sure-delete" bindtap="sureDeleteGoods">确定</text>
+      <text wx:else class="sure-delete" style="{{'color:' + storeStyle.theme}}" data-type="mutiple" bindtap="sureDeleteGoods">确定</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,15 @@
+<component-getUserInfo showGetUserInfo="{{showGetUserInfo}}"></component-getUserInfo>
+<view>
+	<view class="top-section">
+    <image src="http://cdn.jisuapp.cn/zhichi_frontend/static/webapp/images/promotion/my-promotion-bg.png"></image>
+	  <view>通过推广链接进入店铺的顾客累计有 (名)</view>
+	  <view class="customer-num">{{ customer.invited || 0 }}</view>
+	</view>
+	<view class="bottom-section">
+	  <view class="bottom-title">- 我的店铺分享二维码 -</view>
+	  <image src="{{ customer.shop_qrcode }}" mode="widthFix" bindtap="previewImage" data-src="{{ customer.shop_qrcode }}"></image>
+    <view class="my-promotion-tips">点击图片可预览</view>
+	</view>
+</view>
+
+

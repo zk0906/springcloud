@@ -1,0 +1,41 @@
+<view class="current-location-box" catchtap="selectGoodsSameJourney">
+  <text class="ico-moon icon-goods-location"></text>
+  <text>{{currentLocationData.formatted_addresses.recommend}}</text>
+  <text catchtap="getCurrentLocation" class="pull-right renew-position" style="{{'color:' + storeStyle.theme}}">重新定位</text>
+</view>
+<view wx:if="{{ showMap }}">
+  <map longitude="{{ centerLng }}" latitude="{{ centerLat }}" scale="14" circles="{{ circles }}" markers="{{ addressListMakers }}" ></map>
+</view>
+<view class="receipt-header">收货地址<text catchtap="opratAddress" class="pull-right operat-address" style="{{'color:' + storeStyle.theme}}">管理地址</text></view>
+<view class="delivery-list-box">
+  <block wx:for="{{ addressList }}" wx:key="">
+    <view class="delivery-list" wx:if="{{from != 'preview' || item.config.intra_city == 1}}" catchtap="selectDelivery" data-index="{{ index }}">
+      <text class="ico-moon icon-goods-location"></text>
+      <view class="delivery-list-content">
+        <view class="delivery-list-title"><label class="support-same-city address-label" wx:if="{{item.config.intra_city == 1}}">可同城</label><label class="home address-label" wx:if="{{item.address_info.label == 0}}">家</label><label class="company address-label" wx:if="{{item.address_info.label == 2}}">公司</label><label class="school address-label" wx:if="{{item.address_info.label == 1}}">学校</label>{{item.address_info.name }} {{ item.address_info.contact }}</view>
+        <view class="delivery-list-detail">{{item.address_info.province.text + item.address_info.city.text + item.address_info.district.text + item.detail_address }}</view>
+      </view>
+      <label style="{{sameJourneyId == item.id ? ('color:'+ storeStyle.theme) : ''}}" class="delivery-check-box ico-moon icon-success-tip {{ sameJourneyId == item.id ? 'checked' : '' }}"></label>
+    </view>
+  </block>
+</view>
+<block wx:if="{{from == 'preview' && addressList.length && notInRange}}">
+  <view class="receipt-header no-support-header">以下地址超出配送范围</view>
+  <view class="delivery-list-box no-support-pick">
+    <block wx:for="{{ addressList }}" wx:key="">
+      <view wx:if="{{item.config.intra_city != 1}}" class="delivery-list" >
+        <text class="ico-moon icon-goods-location"></text>
+        <view class="delivery-list-content">
+          <view class="delivery-list-title"><label class="address-label" wx:if="{{item.address_info.label == 0}}">家</label><label class="address-label" wx:if="{{item.address_info.label == 2}}">公司</label><label class="address-label" wx:if="{{item.address_info.label == 1}}">学校</label>{{item.address_info.name }} {{ item.address_info.contact }}</view>
+          <view class="delivery-list-detail">{{item.address_info.province.text + item.address_info.city.text + item.address_info.district.text + item.detail_address }}</view>
+        </view>
+        <label class="delivery-check-box ico-moon icon-success-tip"></label>
+      </view>
+    </block>
+  </view>
+</block>
+<view class="same-journey-null" wx:if="{{!addressList.length}}">
+  <image src="http://cdn.jisuapp.cn/static/webapp/images/xcx-goods/same-journey-null.png"></image>
+  <view>暂无收货地址...</view>
+</view>
+<view class="sure-delivery" style="{{'background:' + storeStyle.theme}}" catchtap="sureDelivery">选为配送点</view>

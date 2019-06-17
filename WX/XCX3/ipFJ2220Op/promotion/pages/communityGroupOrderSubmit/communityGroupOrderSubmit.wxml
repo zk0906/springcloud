@@ -1,0 +1,150 @@
+<component-getUserInfo showGetUserInfo="{{showGetUserInfo}}"></component-getUserInfo>
+<component-memberDiscount id="component-memberDiscount" discountType="{{ discountList }}" bind:afterSelectedDiscount="afterSelectedBenefit"></component-memberDiscount>
+<view class="preview-goods-wrap">
+  <view class="preview-title" wx:if="{{notice}}">
+    <text class="ico-moon icon-community_notify"></text>提货地址为小区团长地址，到货后请到该地址自提。 <text class="ico-moon icon-closes pull-right" bindtap="closeNotice"></text>
+  </view>
+  <view class="preview-section">
+    <view class="address-box">
+      <text class="ico-moon icon-goods-location"></text>
+      <view class="address-detail">
+        <view class="buyer-name-box">
+          <text class="store-config-label">自提</text>
+          <text class="buyer-name ellipsis">{{leaderInfo.nick_name}}</text>
+          <text>{{leaderInfo.phone}}</text>
+        </view>
+        <view class="buyer-address">{{leaderInfo.region_address}}{{leaderInfo.housing_estate}}{{leaderInfo.address_detail}}</view>
+      </view>
+    </view>
+  </view>
+  <view class="address-bg">
+    <image src="https://zhichiwangluo.com/static/webapp/images/xcx-goods/goods-address-bg.png"></image>
+  </view>
+  <view class="preview-goods-order-list" wx:for="{{ goodsList }}" wx:for-item="goods" wx:for-index="goodsIndex" wx:key="">
+    <view class="preview-goods-order-item">
+      <image class="preview-goods-cover" src="{{ goods.imgurl }}" mode="aspectFill"></image>
+      <view class="preview-goods-content">
+        <view class="preview-goods-title">{{ goods.title }}</view>
+        <view wx:if="{{ goods.models_text }}" class="preview-goods-model">{{ goods.models_text }}</view>
+        <view class="goods-price-box">
+          <text class="preview-goods-price">¥{{goods.price}}</text>
+          <view class="goods-add">
+            <view class="goods-minus" data-index="{{ goodsIndex }}" catchtap="clickMinusButton">-</view>
+            <input class="goods-count" type="number" value="{{ goods.buyCount }}" data-index="{{ goodsIndex }}"  bindinput="inputGoodsCount"></input>
+            <view class="goods-plus" data-index="{{ goodsIndex }}" catchtap="clickPlusButton">+</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="preview-goods-order-list" wx:if="{{ exchangeCouponData.hasSelectGoods }}">
+    <view class="preview-goods-order-item">
+      <image class="preview-goods-cover" src="{{ exchangeCouponData.goodsInfo.cover }}"></image>
+      <view class="preview-goods-content">
+        <view class="preview-goods-title">
+          <text class="exchange-tip">赠品</text>{{ exchangeCouponData.goodsInfo.title }}</view>
+        <view wx:if="{{ exchangeCouponData.goodsInfo.model_value_str }}" class="preview-goods-model">{{ exchangeCouponData.goodsInfo.model_value_str }}</view>
+        <view class="goods-number-contain">
+          <view class="exchange-num pull-right">x1</view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="preview-box">
+    <view class="single-box">商品金额
+      <text class="pull-right">¥ {{is_group ? group_buy_price : original_price }}</text>
+    </view>
+    <view bindtap="showMemberDiscount" wx:if="{{ discountList.length }}">
+      <view class="balance-switch">
+        <text>优惠方式</text>
+        <view class="ico-moon icon-rightarrow pull-right"></view>
+        <text class="pull-right">{{ selectDiscountInfo.name }}</text>
+      </view>
+      <view hidden="{{ selectDiscountIndex == 0 }}" class="balance-price">
+        <text class="pull-right" style="{{ 'color:' + storeStyle.theme }}">- ¥ {{ discount_cut_price }}</text>
+      </view>
+    </view>
+    <view wx:if="{{ balance != 0 }}">
+      <view class="balance-switch">
+        <text>使用储值金</text>
+        <switch color="{{ storeStyle.theme }}" class="pull-right" checked="true" bindchange="useBalanceChange" />
+      </view>
+      <view hidden="{{ !useBalance }}" class="balance-price">
+        <text class="pull-right" style="{{ 'color:' + storeStyle.theme }}">- ¥ {{ deduction }}</text>
+      </view>
+    </view>
+  </view>
+  <view class="preview-box">
+    <view class="buyer-message single-box">
+      买家留言
+      <view class="pull-right">
+        <input class="remark" value="{{orderRemark}}" maxlength="30" bindinput="remarkInput" placeholder="建议留言前先与商家沟通" />
+      </view>
+    </view>
+    <view class="border-top1 single-box" bindtap="goToAdditionalInfo" wx:if="{{ !noAdditionalInfo }}">
+      补充信息 <view class="ico-moon icon-rightarrow pull-right"></view>
+    </view>
+  </view>
+  <view class="preview-box">
+    <view class="buyer-message single-box">到货通知</view>
+    <view class="buyer-message single-box">
+      提货人
+      <view class="pull-right">
+        <input class="remark" value="{{userInfo.nick_name}}" type="text" data-type="name" bindinput="changeUserInfo" placeholder="请输入您的姓名" />
+      </view>
+    </view>
+    <view class="buyer-message single-box">
+      手机号码
+      <button open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber" class="pull-right phone-btn">自动填写</button>
+      <view class="pull-right">
+        <input style="width:400rpx" class="remark" maxlength="11" type="number" data-type="phone" value="{{userInfo.phone}}" bindinput="changeUserInfo" placeholder="请输入您的号码" />
+      </view>
+    </view>
+  </view>
+  <view class="bottom-nav">
+    <view class="preview-goods-total-price">合计:
+      <text class="price-count" style="{{ 'color:' + storeStyle.theme }}">¥ {{ totalPayment }}</text>
+    </view>
+    <form report-submit="true" bindsubmit="previewPay">
+      <button formType="submit">在线支付</button>
+    </form>
+  </view>
+  <template name="exchangeCouponUseDialog">
+    <view class="page-dialog-wrap" hidden="{{ dialogHidden }}">
+      <view class="page-bottom-dialog">
+        <view class="page-bottom-content">
+          <view class="pay-close-dialog page-dialog-close" bindtap="exchangeCouponHideDialog">×</view>
+          <view class="dialog-block-item">
+            <view class="thumb">
+              <view class="thumb-wrap">
+                <image class="pay-goods-cover" src="{{ selectModelInfo.imgurl || goodsInfo.cover }}"></image>
+              </view>
+            </view>
+            <view class="pay-goods-baseinfo">
+              <view class="pay-goods-title ellipsis">
+                <text class="gift-text">赠品</text>
+                <text class="gift-title">{{ goodsInfo.title }}</text>
+              </view>
+              <view wx:if="{{selectModelInfo.models_text}}" class="pay-checked-text clearfix">已选：{{ selectModelInfo.models_text }}</view>
+              <text class="gift-price">¥{{ selectModelInfo.price }}</text>
+            </view>
+          </view>
+          <view class="exchange-rules-box" hidden="{{ !goodsInfo.model_items.length }}">
+            <view class="pay-goods-models">
+              <view wx:for="{{ goodsInfo.model }}" wx:key="" wx:for-item="model" wx:for-index="modelIndex">
+                <text class="model-title">{{ model.name }}</text>
+                <label class="pills-list">
+                  <label wx:for="{{ model.subModelName }}" wx:for-item="name" wx:key="" data-model-index="{{ modelIndex }}" data-submodel-index="{{ index }}" class="subModel {{ selectModelInfo.models[modelIndex] == model.subModelId[index] ? 'select' : '' }}" data-submodel-id="{{ model.subModelId[index] }}"
+                    bindtap="exchangeCouponSelectSubModel">{{ name }}</label>
+                </label>
+              </view>
+            </view>
+          </view>
+          <view class="confirm-goods" bindtap="exchangeCouponConfirmGoods">确认</view>
+        </view>
+      </view>
+    </view>
+  </template>
+  <template is="exchangeCouponUseDialog" data="{{ ...exchangeCouponData }}"></template>
+</view>

@@ -1,0 +1,53 @@
+<view class="write">
+  <view class="write-search">
+    <input type="text" placeholder="请输入您的核销码" confirm-type="done" value="{{code}}" bindconfirm="searchWrite"></input>
+    <label class="ico-moon icon-search"></label>
+  </view>
+</view>
+<block wx:if="{{codeArr.form_data.goods_info}}">
+  <scroll-view scroll-y="true" class="community-write-code" style="height: calc(100% - 84rpx);">
+    <view class="myAddress-wrap page" style='height: 100%;'>
+      <view class="myOrder-list-content">
+        <view class="myOrder-list-item">
+          <view class="myOrder-list-goods">
+            <view class="goods-item" wx:for="{{codeArr.form_data.goods_info}}"  wx:key="{{item.goods_id}}">
+              <view class="goods-img">
+                <image src="{{item.cover}}"></image>
+              </view>
+              <view class="goods-describe">
+                <text class="goods-describe-title">{{item.goods_name}}</text>
+                <text class="goods-describe-model">{{item.model}}</text>
+                <text class="goods-describe-price">¥{{item.price}}<text>x{{item.num}}</text></text>
+              </view>
+            </view>
+          </view>
+          <view class="myOrder-list-footer">
+            <view class="list-footer-label">
+              <view>共
+                <label>{{codeArr.form_data.goods_info.length}}</label>件</view>
+              <view style="margin-top:10rpx;">
+                <label style="margin-left:80rpx">合计：</label>
+                <label class="origin" style="font-size:28rpx;">¥{{codeArr.total_price}}</label>
+                <label>（不含运费）</label>
+              </view>
+            </view>
+            <view class="list-footer-btn">
+              <text bindtap="goToOrderDetail" class="cancel-btn" data-id="{{codeArr.order_id}}">订单详情</text>
+              <text bindtap="cancellation">确认核销</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</block>
+<block wx:else>
+  <view class="write-notice">注：您只能核销自己社区中的订单</view>
+  <view class="write-notice">核销码查看方式：个人中心>>订单>>社区团购订单>>核销码</view>
+  <view class="write-scan">
+    <view class="scan-btn" bindtap="scan">
+      <text class="ico-moon icon-shopping-scan"></text>
+      <text>扫码核销</text>
+    </view>
+  </view>
+</block>

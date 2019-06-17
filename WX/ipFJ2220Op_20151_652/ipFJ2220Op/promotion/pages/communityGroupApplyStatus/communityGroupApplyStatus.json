@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "社区团长说明",
+  "usingComponents": {
+    "component-getUserInfo": "/components/getUserInfo/getUserInfo"
+  }
+}

@@ -1,0 +1,1273 @@
+<import src="/components/wxParse/wxParse.wxml"/>
+
+<!-- 轮播 -->
+<wxs module="carouselModule">
+  var pxToRpx = function (size) {
+    return parseInt(size) * 2.34375;
+  }
+  module.exports.pxToRpx = pxToRpx;
+</wxs>
+<template name="zcCarousel">
+  <view class="swiper-view" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <swiper wx:if="{{!data.loading && !data.loadingFail && data.content.length > 0}}" indicator-dots="true" circular="true" autoplay="{{data.customFeature.autoplay}}" vertical="{{data.customFeature.vertical}}" interval="{{data.customFeature.interval*1000}}" duration="750" indicator-color="{{ data.customFeature.indicatorColor }}" indicator-active-color="{{ data.customFeature.indicatorActiveColor }}" >
+      <block wx:for="{{data.content}}" wx:key="">
+        <block wx:if="{{item.customFeature.action == 'turn-to-xcx'}}">
+          <swiper-item>
+            <view style="height:100%;overflow:hidden;{{data.customFeature.picBorderRadius ? ('border-radius:'+ carouselModule.pxToRpx(data.customFeature.picBorderRadius) +'rpx;') : ''}}">
+            <navigator class="swiper-navigator" target="miniProgram" open-type="navigate" app-id="{{item.customFeature['xcx-appid']}}" path="{{item.customFeature['xcx-page-url'] || ''}}" version="release">
+              <image class="swiper-item" src="{{item.pic}}"/>
+            </navigator>
+            </view>
+          </swiper-item>
+        </block>
+        <block wx:else>
+            <swiper-item data-event-params="{{item.customFeature}}" data-compid="{{ data.compId }}" catchtap="{{item.customFeature.action && item.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}">
+              <view style="height:100%;overflow:hidden;{{data.customFeature.picBorderRadius ? ('border-radius:'+ carouselModule.pxToRpx(data.customFeature.picBorderRadius) +'rpx;') : ''}}">
+              <image class="swiper-item" src="{{item.pic}}"/>
+              <view  wx:if="{{item.customFeature.action == 'video-play'}}" class="carousel-video-play icon-play ico-moon"></view>
+              </view>
+            </swiper-item>
+          </block>
+      </block>
+    </swiper>
+    <template wx:if="{{data.loading}}" is="requestLoading"></template>
+    <template wx:if="{{data.content.length == 0}}" is="requestNone" data="{{data: '你还未添加轮播项~'}}"></template>
+    <template wx:if="{{data.loadingFail}}" is="requestFail" data="{{refreshEvent: 'getCarouselData', compId: data.compId}}"></template>
+  </view>
+</template>
+<template name="carouselVideoPlay">
+  <view class="carouselVideoPlay" hidden="{{!data.videoUrl}}" catchtouchmove>
+    <view class="carouselVideoPlay-inner">
+      <view class="carouselVideoPlay-close icon-closes ico-moon" data-compid="{{data.compId}}" bindtouchend="carouselVideoClose" ></view>
+      <video wx:if="{{data.videoUrl}}" src="{{data.videoUrl}}" controls autoplay='autoplay'></video>
+    </view>
+  </view>
+</template>
+
+<wxs module="slideWxsModule">
+  var parseStyle = function(style) {
+    var styleArr1 = ["width", "height", "margin-top", "font-size",'margin-left','margin-right',];
+    var styleArr2 = ["background-color",  "opacity" ,'background-image', 'border-style','border-color','border-width','border-radius','box-shadow'];
+    var s = '';
+    for (var i = 0; i < styleArr1.length; i++) {
+      var idx = styleArr1[i];
+      if(style[idx]){
+        s += idx + ':' + (parseInt(style[idx]) * 2.34375) + 'rpx;'
+        if(idx == "height"){
+          s += 'line-height:' + (parseInt(style[idx]) * 2.34375) + 'rpx;'
+        }
+      }
+    }
+    for (var i = 0; i < styleArr2.length; i++) {
+      var idx = styleArr2[i];
+      if(style[idx]){
+        s += idx + ':' + style[idx] + ';'
+      }
+    }
+    return s;
+  }
+  var getMr = function(str){
+    var reg1 = getRegExp("margin-left(\S*)rpx");
+    var reg2 = getRegExp(":(\S*);");
+    if(str.match(reg1) && str.match(reg1)[1] && str.match(reg1)[1].match(reg2)){
+      return str.match(reg1)[1].match(reg2)[1];
+    }
+  }
+  module.exports.parseStyle = parseStyle;
+  module.exports.getMr = getMr;
+</wxs>
+<template name="zcSlidePanel">
+  <view class="element slide-panel" style="{{data.style}}" wx:if="{{data.customFeature.vesselMode !== 2}}">
+    <view bindtouchstart="slidePanelStart" bindtouchend="slidePanelEnd" animation="{{ data.animations}}" data-compid="{{ data.compId }}" bindanimationend="animationEnd" style="left:0;">
+      <view wx:for="{{data.content}}" wx:key="">
+        <block wx:for="{{item.content}}" wx:key="" wx:for-item="subEle">
+          <template wx:if="{{subEle.type === 'text'}}" is="zcText" data="{{data:subEle, real_value:detail_data[subEle.customFeature.segment], parent_form:item.form, detail_data:detail_data }}"></template>
+          <template wx:if="{{subEle.type === 'picture'}}" is="zcPicture" data="{{data:subEle, real_value:detail_data[subEle.customFeature.segment], detail_data:detail_data}}"></template>
+          <template wx:if="{{subEle.type === 'button'}}" is="zcButton" data="{{data:subEle, real_value:detail_data[subEle.customFeature.segment]}}"></template>
+          <!-- <template wx:if="{{subEle.type === 'title-ele'}}" is="zcTitle" data="{{data:subEle}}"></template> -->
+          <template wx:if="{{subEle.type === 'breakline'}}" is="zcBreakline" data="{{data:subEle}}"></template>
+          <!-- <template wx:if="{{subEle.type === 'count-ele'}}" is="zcCountEle" data="{{data:subEle}}"></template> -->
+          <template wx:if="{{subEle.type === 'new-count'}}" is="zcNewCountEle" data="{{data:subEle}}"></template>
+        </block>
+      </view>
+      <view wx:if="{{data.content.length > 1}}">
+        <block wx:for="{{data.content[0].content}}" wx:key="" wx:for-item="subEle">
+          <template wx:if="{{subEle.type === 'text'}}" is="zcText" data="{{data:subEle, real_value:detail_data[subEle.customFeature.segment], parent_form:item.form, detail_data:detail_data }}"></template>
+          <template wx:if="{{subEle.type === 'picture'}}" is="zcPicture" data="{{data:subEle, real_value:detail_data[subEle.customFeature.segment], detail_data:detail_data}}"></template>
+          <template wx:if="{{subEle.type === 'button'}}" is="zcButton" data="{{data:subEle, real_value:detail_data[subEle.customFeature.segment]}}"></template>
+          <!-- <template wx:if="{{subEle.type === 'title-ele'}}" is="zcTitle" data="{{data:subEle}}"></template> -->
+          <template wx:if="{{subEle.type === 'breakline'}}" is="zcBreakline" data="{{data:subEle}}"></template>
+          <!-- <template wx:if="{{subEle.type === 'count-ele'}}" is="zcCountEle" data="{{data:subEle}}"></template> -->
+          <template wx:if="{{subEle.type === 'new-count'}}" is="zcNewCountEle" data="{{data:subEle}}"></template>
+        </block>
+      </view>
+    </view>
+    <view wx:if="{{data.customFeature.mode != -1}}" class="slide-panel-navitage" style="text-align:{{data.customFeature.mode == 0 ? 'left' : (data.customFeature.mode == 1 ? 'center' : 'right')}}">
+      <text wx:for="{{data.content}}" wx:key="" style="background-color:{{(data.customFeature.slideIndex == index || (index == 0 && data.customFeature.slideIndex == data.content.length)) ? data.customFeature.navigateActiveColor : data.customFeature.navigateDefaultColor}};width: {{(data.customFeature.navigateMode == 1 && data.customFeature.slideIndex == index) || (index == 0 && data.customFeature.slideIndex == data.content.length) ? '16rpx' : '10rpx'}}"></text>
+    </view>
+  </view>
+  <scroll-view scroll-x="{{true}}" class="element slide-panel silde-panel-mode2" id="{{data.compId}}" style="{{data.style + 'height:auto;width:auto;' + 'margin-right:' + slideWxsModule.getMr(data.style)}}" wx:if="{{data.customFeature.vesselMode == 2}}" bindscroll="slidePanelScrollEvent" data-compid="{{data.compId}}" data-offset-left-arr="{{data.offsetLeftArr}}" data-active-index="{{data.activeIndex}}" data-container-offset-width="{{data.containerOffsetWidth}}">
+    <view class="sildeItem" wx:for="{{data.content}}" wx:key="" wx:for-index="contentIndex" style="transform: scale({{contentIndex == data.activeIndex ? 1 : data.scaleDegree}});" data-compid="{{data.compId}}">
+      <view wx:if="{{data.customFeature.isShowTitle}}" class="sildeItem-title" style="margin-left:{{data.customFeature.style['margin-left']}};margin-right:{{data.customFeature.style['margin-right']}};{{data.secStyle}}">{{item.title || item.name}}</view>
+      <view class="sildeItem-main" style="{{slideWxsModule.parseStyle(data.customFeature.style) + ';margin-top:' + data.customFeature.style['margin-bt'] + ';margin-bottom:' + data.customFeature.style['margin-bt']}}">
+      <block wx:for="{{item.content}}" wx:key="" wx:for-item="subEle">
+        <template wx:if="{{subEle.type === 'text'}}" is="zcText" data="{{data:subEle, real_value:detail_data[subEle.customFeature.segment], parent_form:item.form, detail_data:detail_data }}"></template>
+        <template wx:if="{{subEle.type === 'picture'}}" is="zcPicture" data="{{data:subEle, real_value:detail_data[subEle.customFeature.segment], detail_data:detail_data}}"></template>
+        <template wx:if="{{subEle.type === 'button'}}" is="zcButton" data="{{data:subEle, real_value:detail_data[subEle.customFeature.segment]}}"></template>
+        <!-- <template wx:if="{{subEle.type === 'title-ele'}}" is="zcTitle" data="{{data:subEle}}"></template> -->
+        <template wx:if="{{subEle.type === 'breakline'}}" is="zcBreakline" data="{{data:subEle}}"></template>
+        <template wx:if="{{subEle.type === 'count-ele'}}" is="zcCountEle" data="{{data:subEle}}"></template>
+        <template wx:if="{{subEle.type === 'new-count'}}" is="zcNewCountEle" data="{{data:subEle}}"></template>
+      </block>
+      </view>
+      <view wx:if="{{data.customFeature.isShowNum}}" class="sildeItem-pagination">{{(contentIndex + 1)+'/'+data.content.length}}</view>
+    </view>
+  </scroll-view>
+</template>
+
+<!-- 表单地址 -->
+<template name="zcAddressEle">
+  <view class="element address-ele" style='{{data.style}}'>
+    <view style="{{'padding: 0 20rpx;overflow: hidden;text-overflow:ellipsis;white-space:nowrap;height:' + data.customFeature.titleStyle['line-height'] + ';color:' + data.customFeature.titleStyle.color + ';background-color:' + data.customFeature.titleStyle['background-color'] + ';font-size:' + data.customFeature.titleStyle['font-size'] + ';line-height:' + data.customFeature.titleStyle['line-height'] +';font-weight:' + data.customFeature.titleStyle['font-weight'] + ';font-style:' + data.customFeature.titleStyle['font-style'] + ';text-decoration:' + data.customFeature.titleStyle['text-decoration'] +';text-align:' + data.customFeature.titleStyle['text-align'] }}">{{data.customFeature.name}}</view>
+    <view class="address-ele" bindtap="formAddress" data-compid="{{data.formCompid}}" data-filed="{{data.customFeature.segment}}" data-sync-user-address="{{data.customFeature.syncUserAddress}}" style="{{'padding: 0 20rpx;overflow: hidden;text-overflow:ellipsis;white-space:nowrap;border-top:1px solid #DDDDDE;height:' + data.customFeature.contentStyle['line-height'] + ';color:' + data.customFeature.contentStyle.color + ';background-color:' + data.customFeature.contentStyle['background-color'] + ';font-size:' + data.customFeature.contentStyle['font-size'] + ';line-height:' + data.customFeature.contentStyle['line-height'] +';font-weight:' + data.customFeature.contentStyle['font-weight'] + ';font-style:' + data.customFeature.contentStyle['font-style'] + ';text-decoration:' + data.customFeature.contentStyle['text-decoration'] +';text-align:' + data.customFeature.contentStyle['text-align'] }}">{{form_data[data.customFeature.segment] || '请选择地区'}}
+      <text class='ico-moon icon-rightarrow' style="{{'font-style: normal;float: right;height'+ data.customFeature.contentStyle['line-height']+ ';line-height:' + data.customFeature.contentStyle['line-height']}}"></text>
+    </view>
+  </view>
+</template>
+
+<!-- 下拉选项 -->
+<template name="zcDropDownEle">
+  <view class="drop-down" style='{{data.style}}'>
+    <view style="{{'height:' + data.customFeature.titleStyle['line-height'] + ';color:' + data.customFeature.titleStyle.color + ';background-color:' + data.customFeature.titleStyle['background-color'] + ';font-size:' + data.customFeature.titleStyle['font-size'] + ';line-height:' + data.customFeature.titleStyle['line-height'] +';font-weight:' + data.customFeature.titleStyle['font-weight'] + ';font-style:' + data.customFeature.titleStyle['font-style'] + ';text-decoration:' + data.customFeature.titleStyle['text-decoration'] +';' }}">{{data.customFeature.name}}</view>
+    <block wx:for="{{data.customFeature.contents}}" wx:key="">
+      <picker data-form="{{data.formCompid}}" data-index="{{index}}" data-name="{{item.name}}" data-key="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-filed="{{data.customFeature.segment}}" bindchange="changeDropDown" value="{{form_data[data.customFeature.segment][item.id].rangeV}}" range="{{item.options}}" data-range="{{item.options}}">
+        <view class="drop-down-picker-title" style="{{'height:' + data.customFeature.contentStyle['line-height'] + ';color:' + data.customFeature.contentStyle.color + ';background-color:' + data.customFeature.contentStyle['background-color'] + ';font-size:' + data.customFeature.contentStyle['font-size'] + ';line-height:' + data.customFeature.contentStyle['line-height'] +';font-weight:' + data.customFeature.contentStyle['font-weight'] + ';font-style:' + data.customFeature.contentStyle['font-style'] + ';text-decoration:' + data.customFeature.contentStyle['text-decoration'] +';' }}">{{form.dropDown[data.customFeature.segment][index] || item.name}}</view>
+      </picker>
+    </block>
+  </view>
+</template>
+
+<!-- 表单提交按钮 -->
+<template name="zcFormButton">
+  <button class="button background-ele" style="{{data.style}}{{data.can_use == 1 ? '' : (data.customFeature.lineBackgroundImage?'background-image:'+ data.customFeature.lineBackgroundImage : 'background-color:'+ data.customFeature.lineBackgroundColor)}}" form-type="submit" disabled="{{data.can_use != 1}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    {{data.can_use == 1 ? data.content : data.customFeature.disabledContent || '已提交'}}
+  </button>
+</template>
+
+<!-- 表单单行输入框 -->
+<template name="zcInputEle">
+  <view class="element input-ele js-form-ele {{data.segment_required ? 'must' : ''}}" style="{{data.style}};{{ data.segment_required ? 'max-width:700rpx;':''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <input type="text" placeholder="{{!!data.customFeature.placeholder? data.customFeature.placeholder: ''}}" data-segment="{{data.customFeature.segment}}" data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" bindinput="inputChange" />
+  </view>
+</template>
+
+<!-- 表单评分 -->
+<template name="zcGradeEle">
+  <view wx:if="{{data.customFeature.type === undefined}}" class="element grade-ele js-form-ele {{data.segment_required ? 'must':''}}" style="{{data.style}}" data-segment="{{data.customFeature.segment}}" data-type="grade-ele" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <view class="grade-wrap">
+      <label class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 1 ? '' : '-empty' }}"
+              data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+              data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="1" bindtap="bindScoreChange"></label>
+      <label class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 2 ? '' : '-empty' }}"
+              data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+              data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="2" bindtap="bindScoreChange"></label>
+      <label class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 3 ? '' : '-empty' }}"
+              data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+              data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="3" bindtap="bindScoreChange"></label>
+      <label class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 4 ? '' : '-empty' }}"
+              data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+              data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="4" bindtap="bindScoreChange"></label>
+      <label class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 5 ? '' : '-empty' }}"
+              data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+              data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="5" bindtap="bindScoreChange"></label>
+    </view>
+  </view>
+  <view wx:elif="{{data.customFeature.type == 1}}" class="element grade-ele js-form-ele {{data.segment_required ? 'must':''}}" style="{{data.style}}" data-segment="{{data.customFeature.segment}}" data-type="grade-ele" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+      <slider backgroundColor="{{data.customFeature.lineBackgroundColor}}" activeColor="{{data.customFeature.selectedBackgroundColor}}" block-color="{{data.customFeature.sliderColor}}" max="{{data.customFeature.numberNodes || 1}}" bindchange="bindSliderChange" bindchanging="bindSliderChange"  data-formcompid="{{data.formCompid}}" data-compid="{{ data.compId }}" data-segment="{{data.customFeature.segment}}" data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}"></slider>
+      <view class="slider-score">{{data.sliderScore || 0}}</view>
+    </view>
+    <view wx:elif="{{data.customFeature.type == 0}}" class="element grade-ele js-form-ele {{data.segment_required ? 'must':''}}" style="{{data.style}}" data-segment="{{data.customFeature.segment}}" data-type="grade-ele" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+      <view class="grade-wrap">
+        <label style="color: {{data.editScore >= 1 ? data.customFeature.selectedBackgroundColor : '#D3D3D3'}}" class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 1 ? '' : '-empty' }}"
+                data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+                data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="1" bindtap="bindScoreChange"></label>
+        <label style="color: {{data.editScore >= 2 ? data.customFeature.selectedBackgroundColor : '#D3D3D3'}}" class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 2 ? '' : '-empty' }}"
+                data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+                data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="2" bindtap="bindScoreChange"></label>
+        <label style="color: {{data.editScore >= 3 ? data.customFeature.selectedBackgroundColor : '#D3D3D3'}}" class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 3 ? '' : '-empty' }}"
+                data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+                data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="3" bindtap="bindScoreChange"></label>
+        <label style="color: {{data.editScore >= 4 ? data.customFeature.selectedBackgroundColor : '#D3D3D3'}}" class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 4 ? '' : '-empty' }}"
+                data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+                data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="4" bindtap="bindScoreChange"></label>
+        <label style="color: {{data.editScore >= 5 ? data.customFeature.selectedBackgroundColor : '#D3D3D3 '}}" class="ico-moon icon-{{data.customFeature.icon == 'love' ? 'heart' : (data.customFeature.icon == 'plum' ? 'clubs' : data.customFeature.icon)}}{{ data.editScore >= 5 ? '' : '-empty' }}"
+                data-compid="{{data.compId}}" data-segment="{{data.customFeature.segment}}" data-formcompid="{{data.formCompid}}"
+                data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-score="5" bindtap="bindScoreChange"></label>
+      </view>
+    </view>
+</template>
+
+<!-- 表单选择 -->
+<template name="zcSelectEle">
+  <view wx:if="{{data.customFeature.type === undefined}}" class="element select-ele js-form-ele {{data.segment_required ? 'must':''}}" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <view class="select-container">
+      <label class="title-container" style='{{data.titleStyle}}'><text class="title">{{data.content.title}}</text></label>
+      <checkbox-group class="checkbox-group" wx:if="{{data.customFeature.selectAmount > 1}}" bindchange="bindSelectChange"
+                      data-segment="{{data.customFeature.segment}}"
+                      data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}"
+                      data-limit="{{data.customFeature.selectAmount}}" data-compid="{{selectdata.compId}}">
+        <view class="select-item" wx:for="{{data.content.lists}}" wx:key="">
+          <label class="select-content checkbox"><label class="select-text">{{item}}</label>
+            <checkbox disabled="{{data.customFeature.selectAmount == selectdata.selectedData[data.customFeature.segment].itemLength && selectdata.selectedData[data.customFeature.segment][item] != 1}}" class="select-input" value="{{item}}"/>
+          </label>
+        </view>
+      </checkbox-group>
+      <radio-group class="radio-group" bindchange="bindSelectChange" wx:else
+                   data-segment="{{data.customFeature.segment}}"
+                   data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}">
+        <view class="select-item" wx:for="{{data.content.lists}}" wx:key="">
+          <label class="select-content checkbox"><label class="select-text">{{item}}</label>
+            <radio class="select-input" value="{{item}}"/>
+          </label>
+        </view>
+      </radio-group>
+    </view>
+  </view>
+  <view wx:elif="{{data.customFeature.type === 0}}" class="element select-ele js-form-ele {{data.segment_required ? 'must':''}}" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <view class="select-container select-container-type0">
+      <label class="title-container" style='{{data.titleStyle}}'><text class="title">{{data.content.title}}</text></label>
+      <checkbox-group class="checkbox-group" wx:if="{{data.customFeature.multiSelection}}" bindchange="selectOptionOne"
+                      data-segment="{{data.customFeature.segment}}"
+                      data-compid="{{data.compId}}"
+                      data-formCompid="{{data.formCompid}}"
+                      data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}">
+        <view class="select-item" wx:for="{{data.content.lists}}" wx:key="">
+          <label class="select-content checkbox"><label class="select-text">{{item}}</label>
+            <checkbox disabled="{{data.customFeature.maxSelect == data.selectedData.itemLength && data.selectedData[item] != 1}}" class="select-input" value="{{item}}"/>
+          </label>
+        </view>
+      </checkbox-group>
+      <radio-group class="radio-group" bindchange="selectOptionOne" wx:else
+                   data-segment="{{data.customFeature.segment}}"
+                   data-compid="{{data.compId}}"
+                   data-formCompid="{{data.formCompid}}"
+                   data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}">
+        <view class="select-item" wx:for="{{data.content.lists}}" wx:key="">
+          <label class="select-content checkbox"><label class="select-text">{{item}}</label>
+            <radio class="select-input" value="{{item}}"/>
+          </label>
+        </view>
+      </radio-group>
+    </view>
+  </view>
+  <view wx:elif="data.customFeature.type === 1" class="element select-ele-second js-form-ele {{data.segment_required ? 'must':''}}" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <view class="select-container">
+      <label class="title-container" style='{{data.titleStyle}}'><text class="title">{{data.content.title}}</text></label>
+      <view class="select-list" wx:for="{{data.content.lists}}" wx:key="" data-index="{{index}}" data-segment="{{data.customFeature.segment}}" catchtap="selectOptionSecond" data-formCompid="{{data.formCompid}}" data-multi="{{data.customFeature.multiSelection}}" data-min="{{data.customFeature.minSelect}}" data-max="{{data.customFeature.maxSelect}}" data-compid="{{data.compId}}" data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" data-selected-value="{{data.selectedValue}}" data-selected-data="{{data.content.lists}}" style="{{'border-width:' + data.customFeature.select_style['border-width'] + ';border-style:' + data.customFeature.select_style['border-style'] + ';border-color:' +(data.selectedValue[index] === index ? data.customFeature.select_style['border-active-color'] : data.customFeature.select_style['border-color'])}}">
+        <label wx:if="{{data.selectedValue[index]=== index}}" style="background: -webkit-gradient(linear, right top, left bottom, from({{data.customFeature.select_style['border-active-color']}}), color-stop(0.5, {{data.customFeature.select_style['border-active-color']}}),color-stop(0.5, rgba(255, 0, 0,0)), to(rgba(255, 0, 0,0)));" class="icon-gou ico-moon"></label>
+      {{item}}
+      </view>
+    </view>
+  </view>
+</template>
+
+<!-- 表单多行文本 -->
+<template name="zcTextareaEle">
+  <view class="element textarea-ele js-form-ele {{data.segment_required ? 'must':''}}" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <textarea placeholder="{{!!data.customFeature.placeholder ? data.customFeature.placeholder: ''}}"
+            data-segment="{{data.customFeature.segment}}"
+            data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}"
+            maxlength="-1"
+            bindinput="inputChange"/>
+  </view>
+</template>
+
+<!-- 表单选择时间 -->
+<template name="zcTimeEle">
+  <view class="element xcx-time-ele {{data.segment_required ? 'must':''}}" style="{{data.style}}; {{data.segment_required ? 'max-width:700rpx;':''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <picker mode="date" bindchange="bindDateChange"
+            data-segment="{{data.customFeature.segment}}"
+            data-formcompid="{{data.formCompid}}"
+            data-compid="{{data.compId}}"
+            data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}" style="{{data.customFeature.ifAllDay?'width:100%':''}}">
+      <label class="date-btn">{{data.date? data.date: "请选择日期"}}</label>
+    </picker>
+    <picker wx:if="{{!data.customFeature.ifAllDay}}" mode="time" bindchange="bindTimeChange"
+            data-segment="{{data.customFeature.segment}}"
+            data-formcompid="{{data.formCompid}}"
+            data-compid="{{data.compId}}"
+            data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}">
+      <label class="time-btn">{{data.time? data.time: "请选择时间"}}</label>
+    </picker>
+  </view>
+</template>
+
+<!-- 图片上传 -->
+<template name="zcUploadImg">
+  <view class="element upload-img js-form-ele {{data.segment_required ? 'must':''}}" style="padding-left: 17rpx;padding-right: 27rpx;{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <view class="hasuploadImg" wx:for="{{form_data[data.customFeature.segment]}}" wx:key="">
+      <view class="" style="position:relative;" >
+        <view class="deleteImg ico-moon icon-closes"
+          data-index="{{index}}"
+          data-compid="{{data.compId}}"
+          data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}"
+          bindtap="deleteUploadImg" data-imgarr="{{form_data[data.customFeature.segment]}}" data-segment="{{data.customFeature.segment}}"
+          data-formcompid="{{data.formCompid}}"></view>
+        <image style="width:210rpx;height:210rpx;" src="{{form_data[data.customFeature.segment][index]}}" mode="aspectFit"
+          catchtap="tapPrevewPictureHandler" data-img="{{form_data[data.customFeature.segment][index]}}" data-imgarr="{{form_data[data.customFeature.segment]}}"
+          data-compid="{{data.compId}}" data-formcompid="{{data.formCompid}}"
+          data-segment="{{data.customFeature.segment}}"
+          data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}"></image>
+      </view>
+    </view>
+    <view class="plus-div"
+          catchtap="uploadFormImg"
+          data-compid="{{data.compId}}" data-formcompid="{{data.formCompid}}"
+          wx:if="{{  !form_data || !form_data[data.customFeature.segment] || form_data[data.customFeature.segment].length < 9 }}"
+          data-segment="{{data.customFeature.segment}}"
+          data-datakey="{{data.formCompid}}.form_data.{{data.customFeature.segment}}">
+      <text style="font-size:40px;padding-top:10px;display:block;">＋</text>
+      <view>添加图片</view>
+    </view>
+  </view>
+</template>
+
+<!-- 图片选项 -->
+<template name="zcPicOptions">
+  <view class="pic-options {{data.customFeature.mode === 0 ? 'mode-one': 'mode-two'}}" style="{{data.style}}">
+    <view style="{{'box-sizing:border-box;padding: 0 20rpx;text-align: '+data.customFeature.title_style['text-align']+';color:' + data.customFeature.title_style.color + ';background-color:' + data.customFeature.title_style['background-color'] + ';font-size:' + data.customFeature.title_style['font-size'] + ';line-height:' + data.customFeature.title_style['line-height'] +';font-weight:' + data.customFeature.title_style['font-weight'] + ';font-style:' + data.customFeature.title_style['font-style'] + ';text-decoration:' + data.customFeature.title_style['text-decoration'] +';' }}">{{data.customFeature.name}}</view>
+    <view class="pic-options-list" wx:for="{{data.customFeature.picOptions}}" wx:key="" data-index="{{index}}" data-filed="{{data.customFeature.segment}}" catchtap="selectPicOption" data-src="{{item.pic}}" data-form="{{data.formCompid}}" data-multi="{{data.customFeature.multiSelection}}" data-min="{{data.customFeature.minSelect}}" data-max="{{data.customFeature.maxSelect}}" data-name="{{data.customFeature.name}}">
+      <view class="pic-options-item" style="{{'height:' + data.customFeature.pic_style.height + ';width:' + data.customFeature.pic_style.width + ';'}}">
+        <label wx:if="{{(!data.customFeature.multiSelection && form.picOptionsIndex[data.customFeature.segment] === index) || (data.customFeature.multiSelection && form.picOptionsIndex[data.customFeature.segment][index] === index)}}" style="background: -webkit-gradient(linear, right top, left bottom, from({{data.customFeature.pic_style['border-active-color']}}), color-stop(0.5, {{data.customFeature.pic_style['border-active-color']}}),color-stop(0.5, rgba(255, 0, 0,0)), to(rgba(255, 0, 0,0)));" class="icon-gou ico-moon"></label>
+        <image style="{{'box-sizing:border-box;height:' + data.customFeature.pic_style.height + ';width:' + data.customFeature.pic_style.width + ';border-color:' + ((!data.customFeature.multiSelection && form.picOptionsIndex[data.customFeature.segment] === index) || (data.customFeature.multiSelection && form.picOptionsIndex[data.customFeature.segment][index] === index) ? data.customFeature.pic_style['border-active-color'] : data.customFeature.pic_style['border-color']) + ';border-radius:' + data.customFeature.pic_style['border-radius'] + ';border-style:' + data.customFeature.pic_style['border-style'] +';border-width:' + data.customFeature.pic_style['border-width'] + ';' }}" src="{{item.pic}}"></image>
+        <text catchtap='tapPrevewPictureHandler' data-img="{{item.pic}}" data-imgarr="{{item.pic}}" class='ico-moon icon-big-pic'></text>
+      </view>
+      <view style="text-align: center;">{{item.name}}</view>
+    </view>
+  </view>
+</template>
+
+
+
+<!-- 图片 -->
+<wxs module="pictureWxsModule">
+  var isArray = function(array) {
+    return array.join ? true : false;
+  }
+  module.exports.isArray = isArray;
+</wxs>
+<template name="zcPicture">
+  <block wx:if="{{real_value && (data.customFeature.action !== 'call' || data.customFeature.phoneDisplayContent !== 'static')}}">
+    <block wx:if="{{pictureWxsModule.isArray(real_value)}}">
+      <block wx:if="{{data.customFeature.action == 'turn-to-xcx'}}">
+        <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+          <view class="element picture" style="{{data.style}}" wx:for="{{real_value}}" wx:key="" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+            <image src="{{real_value[index]}}" mode="scaleToFill"></image>
+          </view>
+        </navigator>
+      </block>
+      <block wx:elif="{{ is_group}}">
+        <view class="element picture" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          <image src="{{group_data.goods_img}}" mode="scaleToFill"></image>
+        </view>
+      </block>
+      <block wx:else>
+        <view data-compdata="{{ data }}" data-real-value="{{ real_value }}" class="element picture" style="{{data.style}}" wx:for="{{real_value}}" wx:key="" data-event-params="{{data.customFeature}}" data-img="{{real_value[index]}}" data-imgArr="{{real_value}}"
+          catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          <image src="{{real_value[index]}}" mode="scaleToFill"></image>
+        </view>
+      </block>
+    </block>
+    <block wx:else>
+      <block wx:if="{{data.customFeature.action == 'turn-to-xcx'}}">
+        <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+          <view class="element picture" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+            <image src="{{real_value}}" mode="scaleToFill"></image>
+          </view>
+        </navigator>
+      </block>
+      <block wx:else>
+        <view data-compdata="{{ data }}" class="element picture" style="{{data.style}}" data-event-params="{{data.customFeature}}" data-img="{{real_value}}" data-imgArr="{{real_value}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          <image src="{{real_value}}" mode="scaleToFill"></image>
+        </view>
+      </block>
+    </block>
+  </block>
+  <block wx:elif="{{data.customFeature.action == 'turn-to-xcx'}}">
+    <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+      <view class="element picture" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+        <image wx:if="{{!data.customFeature.backgroundType}}" src="{{data.content}}" mode="scaleToFill"></image>
+      </view>
+    </navigator>
+  </block>
+
+  <block wx:else>
+    <view data-compdata="{{ data }}" data-real-value="{{ real_value }}" class="element picture" style="{{data.style}}" data-event-params="{{data.customFeature}}" data-img="{{data.content}}" data-imgArr="{{data.content}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd"
+      data-compid="{{ data.compId }}">
+       <image wx:if="{{!data.customFeature.backgroundType}}" src="{{data.content}}" mode="scaleToFill"></image>
+    </view>
+  </block>
+</template>
+
+<!-- 按钮 -->
+<wxs module="buttonWxsModule">
+var isArray = function(array) {
+  return array instanceof Array;
+}
+module.exports.isArray = isArray;
+</wxs>
+<template name="zcButton">
+  <block wx:if="{{real_value}}">
+    <block wx:if="{{buttonWxsModule.isArray(real_value)}}">
+      <block wx:if="{{data.customFeature.action == 'share'}}">
+        <button class="element button" open-type="{{data.customFeature.action}}" style="{{data.style}}" data-desc="{{data.customFeature.desc}}"  data-image="{{data.customFeature.shareImage || ''}}" catchtap="onShareAppMessage" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          <view class="wxParse">
+            <template is="wxParse" data="{{wxParseData: real_value}}"/>
+          </view>
+        </button>
+      </block>
+      <block wx:elif="{{data.customFeature.action == 'contact'}}">
+        <button class="element button" open-type="{{data.customFeature.action}}" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          <view class="wxParse">
+            <template is="wxParse" data="{{wxParseData: real_value}}"/>
+          </view>
+        </button>
+      </block>
+      <block wx:elif="{{data.customFeature.action == 'turn-to-xcx'}}">
+        <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+          <label class="element button" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+            <view class="wxParse">
+              <template is="wxParse" data="{{wxParseData: real_value}}"/>
+            </view>
+          </label>
+        </navigator>
+      </block>
+      <block wx:else>
+        <label class="element button" style="{{data.style}}" data-event-params="{{data.customFeature}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          <view class="wxParse">
+            <template is="wxParse" data="{{wxParseData: real_value}}"/>
+          </view>
+        </label>
+      </block>
+    </block>
+    <block wx:else>
+      <block wx:if="{{data.customFeature.action == 'share'}}">
+        <button class="element button" open-type="{{data.customFeature.action}}" style="{{data.style}}" data-desc="{{data.customFeature.desc}}"  data-image="{{data.customFeature.shareImage || ''}}" catchtap="onShareAppMessage" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          {{real_value}}
+        </button>
+      </block>
+      <block wx:elif="{{data.customFeature.action == 'contact'}}">
+        <button class="element button" open-type="{{data.customFeature.action}}" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          {{data.content}}
+        </button>
+      </block>
+      <block wx:elif="{{data.customFeature.action == 'turn-to-xcx'}}">
+        <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+          <label class="element button" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+            {{real_value}}
+          </label>
+        </navigator>
+      </block>
+      <block wx:else>
+        <label class="element button" style="{{data.style}}" data-event-params="{{data.customFeature}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          {{real_value}}
+        </label>
+      </block>
+    </block>
+  </block>
+  <block wx:else>
+    <block wx:if="{{data.customFeature.action == 'share' }}">
+      <button class="element button" open-type="{{data.customFeature.action}}" style="{{data.style}}" data-desc="{{data.customFeature.desc}}"  data-image="{{data.customFeature.shareImage || ''}}" catchtap="onShareAppMessage" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+        {{data.content}}
+      </button>
+    </block>
+    <block wx:elif="{{data.customFeature.action == 'contact'}}">
+      <button class="element button" open-type="{{data.customFeature.action}}" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+        {{data.content}}
+      </button>
+    </block>
+    <block wx:elif="{{data.customFeature.action == 'turn-to-xcx'}}">
+      <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+        <label class="element button" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          {{data.content}}
+        </label>
+      </navigator>
+    </block>
+    <block wx:else>
+      <label class="element button" style="{{data.style}}" data-event-params="{{data.customFeature}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+        {{data.content}}
+      </label>
+    </block>
+  </block>
+</template>
+
+<!-- 文本 -->
+<wxs module="textWxsModule">
+  var isArray = function(array) {
+    return array instanceof Array;
+  }
+  module.exports.isArray = isArray;
+</wxs>
+<template name="zcText">
+  <block wx:if="{{real_value && (data.customFeature.action !== 'call' || data.customFeature.phoneDisplayContent !== 'static')}}">
+    <block wx:if="{{textWxsModule.isArray(real_value)}}">
+      <block wx:if="{{data.customFeature.action == 'turn-to-xcx'}}">
+        <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+          <view class="element text {{data.customFeature.isWordWrap == 1 ? 'text-word-wrap' : '' }}" style="{{data.style}}{{data.customFeature.isWordWrap == 1 ? '-webkit-line-clamp:' + data.customFeature['word-wrap'] : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+            <block wx:if="{{ parent_form === 'form' }}">
+              {{ real_value }}
+            </block>
+            <block wx:else>
+              <view class="wxParse">
+                <template is="wxParse" data="{{wxParseData: real_value}}" />
+              </view>
+            </block>
+          </view>
+        </navigator>
+      </block>
+      <block wx:else>
+        <view data-compdata="{{ data }}" data-real-value="{{ real_value }}" class="element text {{data.customFeature.isWordWrap == 1 ? 'text-word-wrap' : '' }}" style="{{data.style}}{{data.customFeature.isWordWrap == 1 ? '-webkit-line-clamp:' + data.customFeature['word-wrap'] : ''}}"
+          data-event-params="{{data.customFeature}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+          <block wx:if="{{ parent_form === 'form' }}">
+            {{ real_value }}
+          </block>
+          <block wx:else>
+            <view class="wxParse">
+              <template is="wxParse" data="{{wxParseData: real_value}}" />
+            </view>
+          </block>
+        </view>
+      </block>
+    </block>
+    <block wx:else>
+      <block wx:if="{{data.customFeature.action == 'turn-to-xcx'}}">
+        <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+          <text class="element text {{data.customFeature.isWordWrap == 1 ? 'text-word-wrap' : '' }}" style="{{data.style}}{{data.customFeature.isWordWrap == 1 ? '-webkit-line-clamp:' + data.customFeature['word-wrap'] : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}" selectable>{{data.customFeature.phoneDisplayContent === 'static' ? data.content : real_value}}</text>
+        </navigator>
+      </block>
+      <block wx:else>
+        <text data-compdata="{{ data }}" class="element text {{data.customFeature.isWordWrap == 1 ? 'text-word-wrap' : '' }}" style="{{data.style}}{{data.customFeature.isWordWrap == 1 ? '-webkit-line-clamp:' + data.customFeature['word-wrap'] : ''}}" data-event-params="{{data.customFeature}}"
+          catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}" selectable>{{data.customFeature.phoneDisplayContent === 'static' ? data.content : real_value}}</text>
+      </block>
+    </block>
+  </block>
+  <block wx:elif="{{data.customFeature.segment == 'default_map' && form_data}}">
+    <!-- 动态列表绑定地图 -->
+    <text class="element text {{data.customFeature.isWordWrap == 1 ? 'text-word-wrap' : '' }}" style="{{data.style}}{{data.customFeature.isWordWrap == 1 ? '-webkit-line-clamp:' + data.customFeature['word-wrap'] : ''}}" data-latitude="{{form_data.region_lat}}"
+      data-longitude="{{form_data.region_lng}}" data-address="{{(form_data.region_string || '') + (form_data.region_detail || '')}}" data-event-params="{{data.customFeature}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" selectable>{{(form_data.region_string || '') + (form_data.region_detail || '')}}</text>
+  </block>
+  <block wx:elif="{{data.customFeature.segment == 'default_map'}}">
+    <!-- 详情页绑定地图 -->
+    <text class="element text {{data.customFeature.isWordWrap == 1 ? 'text-word-wrap' : '' }}" style="{{data.style}}{{data.customFeature.isWordWrap == 1 ? '-webkit-line-clamp:' + data.customFeature['word-wrap'] : ''}}" data-latitude="{{detail_data.region_lat}}"
+      data-longitude="{{detail_data.region_lng}}" data-address="{{(detail_data.region_string || '') + (detail_data.region_detail || '')}}" catchtap="textToMap" selectable>{{((detail_data.region_string || '') + (detail_data.region_detail || '')) || detail_data.default_map[0].text}}</text>
+  </block>
+  <block wx:elif="{{data.customFeature.action == 'turn-to-xcx'}}">
+    <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+      <text class="element text {{data.customFeature.isWordWrap == 1 ? 'text-word-wrap' : '' }}" style="{{data.style}}{{data.customFeature.isWordWrap == 1 ? '-webkit-line-clamp:' + data.customFeature['word-wrap'] : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}" selectable>{{data.content}}</text>
+    </navigator>
+  </block>
+  <block wx:else>
+    <text data-compdata="{{ data }}" data-real-value="{{ real_value }}" class="element text {{data.customFeature.isWordWrap == 1 ? 'text-word-wrap' : '' }}" style="{{data.style}}{{data.customFeature.isWordWrap == 1 ? '-webkit-line-clamp:' + data.customFeature['word-wrap'] : ''}}"
+      data-event-params="{{data.customFeature}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}" selectable>{{data.content}}</text>
+
+  </block>
+</template>
+
+<!-- 标题 -->
+<template name="zcTitle">
+  <block wx:if="{{data.customFeature.action == 'turn-to-xcx'}}">
+    <view class="element title-ele {{ 'title-mode'+ (data.mode ? data.mode : '') }}" mode="{{data.mode}}" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+      <navigator target="miniProgram" open-type="navigate" app-id="{{data.customFeature['xcx-appid']}}" path="{{data.customFeature['xcx-page-url'] || ''}}" version="release">
+        <view class="title-content">
+          <view class="title-text" wx:if="{{data.mode == 0}}">
+            <text class="mark"></text>
+            <text class="js-text">{{data.content}}</text>
+          </view>
+          <view class="title-text" wx:if="{{data.mode == 1 || data.mode == 3}}">
+            <view class="mark_warp_left">
+              <text class="mark mark_left" style="{{'background-color: ' + data.customFeature.markColor + ';right:' + data.customFeature['markMargin-right']}}"></text>
+            </view>
+            <text class="js-text">{{data.content}}</text>
+          </view>
+          <view class="title-text" wx:if="{{data.mode == 2}}">
+            <view class="js-text mark_bottom">
+              <view class='mark_bottom-title' style="{{'padding-bottom: ' + data.customFeature['markMargin-top']}}">{{data.content}}<text class="mark" style="{{'background-color: ' + data.markColor}}"></text></view>
+            </view>
+          </view>
+        </view>
+      </navigator>
+    </view>
+  </block>
+  <block wx:else>
+    <view class="element title-ele {{ 'title-mode'+ (data.mode ? data.mode : '') }}" mode="{{data.mode}}" style="{{data.style}}" data-event-params="{{data.customFeature}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+      <view class="title-content">
+        <view class="title-text" wx:if="{{data.mode == 0}}">
+          <text class="mark"></text>
+          <text class="js-text">{{data.content}}</text>
+        </view>
+        <view class="title-text" wx:if="{{data.mode == 1 || data.mode == 3}}">
+          <view class="mark_warp_left">
+            <text class="mark mark_left" style="{{'background-color: ' + data.customFeature.markColor + ';right:' + data.customFeature['markMargin-right']}}"></text>
+          </view>
+          <text class="js-text">{{data.content}}</text>
+        </view>
+        <view class="title-text" wx:if="{{data.mode == 2}}">
+         <!-- style="{{'padding-bottom: ' + data.customFeature['markMargin-top']}}" -->
+          <view class="js-text mark_bottom">
+            <view class='mark_bottom-title' style="{{'padding-bottom: ' + data.customFeature['markMargin-top']}}">{{data.content}}<text class="mark" style="{{'background-color: ' + data.markColor}}"></text></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</template>
+
+
+
+<!-- 横线 -->
+<template name="zcBreakline">
+  <view class="element breakline" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}"></view>
+</template>
+
+<!-- 公告 -->
+<template name="dqAnnounce">
+  <component-announce announce="{{data}}"></component-announce>
+</template>
+
+
+<!-- 筛选组件 -->
+<wxs module="filterWxsModule">
+  var parseStyle = function(style) {
+    var styleArr1 = ["width", "height", "margin-top", "font-size"];
+    var styleArr2 = ["background-color", "font-style", "font-weight", "text-decoration", "opacity", "color"];
+    var s = '';
+    for (var i = 0; i < styleArr1.length; i++) {
+      var idx = styleArr1[i];
+      if(style[idx]){
+        s += idx + ':' + (parseInt(style[idx]) * 2.34375) + 'rpx;'
+        if(idx == "height"){
+          s += 'line-height:' + (parseInt(style[idx]) * 2.34375) + 'rpx;'
+        }
+      }
+    }
+    for (var i = 0; i < styleArr2.length; i++) {
+      var idx = styleArr2[i];
+      if(style[idx]){
+        s += idx + ':' + style[idx] + ';'
+      }
+    }
+    return s;
+  }
+  module.exports.parseStyle = parseStyle;
+</wxs>
+<template name="zcFilter">
+  <view class="element goodsFilter" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <view class="goodsFilter-search-wrap">
+      <view class="goodsFilter-search-inner" style="{{filterWxsModule.parseStyle(data.customFeature.searchStyle.style)}}" data-form="goods" data-compid="{{data.compId}}" data-listid="{{data.customFeature.addGroup_object}}" bindtap="turnToSearchPage"><label class="ico-moon icon-search"></label>{{data.customFeature.placeholder}}</view>
+    </view>
+    <view class="goodsFilter-filter-tab-wrap" style="{{filterWxsModule.parseStyle(data.customFeature.sortStyle.style)}}">
+      <view class="goodsFilter-tab-item" style="color:{{data.tab == 0 ?  data.customFeature.selectedColor : ''}}" data-compid="{{data.compId}}" bindtap="sortByDefault">综合</view>
+      <view class="goodsFilter-tab-item" style="color:{{data.tab == 1 ?  data.customFeature.selectedColor : ''}}" data-compid="{{data.compId}}" bindtap="sortBySales">销量</view>
+      <view class="goodsFilter-tab-item goodsFilter-pick-up" data-compid="{{data.compId}}" bindtap="pickUpStyle" style="color:{{data.tab == 3 ?  data.customFeature.selectedColor : ''}}">取货<text class="ico-moon icon-filter-down" style="color:{{data.tab == 3 ?  data.customFeature.selectedColor : ''}}"></text></view>
+      <view class="goodsFilter-tab-item goodsFilter-tab-price" style="color:{{data.tab == 2 ?  data.customFeature.selectedColor : ''}}" data-direction="{{data.direction}}" data-compid="{{data.compId}}" bindtap="sortByPrice">价格
+        <view class="goodsFilter-label">
+          <text class="goodsFilter-up ico-moon icon-filter-up" style="color:{{data.tab == 2 && data.sortDirection == 1 ?  data.customFeature.selectedColor : data.customFeature.sortStyle.style.color}}"></text>
+          <text class="goodsFilter-down ico-moon icon-filter-down" style="color:{{data.tab == 2 && data.sortDirection == 0 ?  data.customFeature.selectedColor : data.customFeature.sortStyle.style.color}}"></text>
+        </view>
+      </view>
+      <!-- <view class="goodsFilter-tab-item ico-moon {{ data.styleType == 1 ? 'icon-list-block' : 'icon-list-vertical'}}" data-compid="{{data.compId}}" bindtap="switchStyle"></view> -->
+      <view class="goodsFilter-tab-item goodsFilter-filter" style="color:{{data.hasFilter ?  data.customFeature.selectedColor : ''}}"data-compid="{{data.compId}}" bindtap="filterList">筛选
+        <text class="ico-moon icon-filter-f"></text>
+      </view>
+    </view>
+    <view wx:if="{{data.showPickUpBox}}" class="filter-pick-up-box">
+      <view class="pick-style-content">
+        <view wx:if="{{data.tabExpress == 1}}" data-type="1" data-compid="{{data.compId}}" catchtap='selectPickUp' style="color:{{data.pickUpObj[1] ? data.customFeature.selectedColor : ''}}">快递<text wx:if="{{data.pickUpObj[1]}}" style="background:{{data.customFeature.selectedColor}}" class="pcik-bottom-line"></text><text wx:if="{{data.pickUpObj[1]}}" class="pull-right ico-moon icon-gou"></text></view>
+        <view wx:if="{{data.tabDelivery == 1}}" data-type="3" data-compid="{{data.compId}}" catchtap='selectPickUp'  style="color:{{data.pickUpObj[3] ? data.customFeature.selectedColor : ''}}">上门自提<text wx:if="{{data.pickUpObj[3]}}" style="background:{{data.customFeature.selectedColor}}" class="pcik-bottom-line"></text><text wx:if="{{data.pickUpObj[3]}}" class="pull-right ico-moon icon-gou"></text></view>
+        <view wx:if="{{data.tabIntraCity == 1}}" data-type="2" data-compid="{{data.compId}}" catchtap='selectPickUp' style="color:{{data.pickUpObj[2] ? data.customFeature.selectedColor : ''}}">同城配送<text wx:if="{{data.pickUpObj[2]}}" style="background:{{data.customFeature.selectedColor}}" class="pcik-bottom-line"></text><text wx:if="{{data.pickUpObj[2]}}" class="pull-right ico-moon icon-gou"></text></view>
+      </view>
+      <view class="pick-btn-content"><text data-compid="{{data.compId}}" catchtap="resetPickBtn">重置</text><text data-compid="{{data.compId}}" class="sure-pick-btn" style="background: {{data.customFeature.selectedColor}}" catchtap="surePickBtn">确定</text></view>
+    </view>
+  </view>
+  <view wx:if="{{data.showPickUpBox}}" data-compid="{{data.compId}}" catchtap="hideFilterPickUpBox" class="filter-pick-up-mask"></view>
+</template>
+
+
+
+<!-- 商品列表 -->
+<wxs module="addshoppingcartImageModule">
+  var isImage = function(string) {
+    var a = string || 'addshoppingcart1';
+    return a.indexOf('addshoppingcart');
+  }
+  module.exports.isImage = isImage;
+</wxs>
+
+<!-- 积分商城样式 -->
+<template name="zcIntegralGoodsList">
+  <scroll-view class="element goods-list scroll-ele goods-list-mode-{{data.customFeature.mode}} {{(data.customFeature.mode == 2 && data.curpage > 0) ? 'hor-request-status' : ''}}"
+               data-param="{{data.param}}"
+               data-compid="{{data.compId}}"
+               data-type="goods-list"
+               style="{{data.style}}"
+               scroll-y="{{(data.customFeature.mode == 2 || data.customFeature.vesselAutoheight != 0) ? false : true}}"
+               scroll-x="{{data.customFeature.mode == 2? true: false}}"
+               scroll-top="{{data.scrollTop}}"
+               data-curpage="{{data.curpage}}"
+               bindscrolltolower="goodsScrollFunc"
+               bindanimationend="animationEnd">
+    <view class="js-list-container" data-list-index="0" wx:if="{{data.customFeature.mode !== 3}}">
+      <view class="goods-list-item background-ele router js-to-detail"
+            wx:for="{{data.goods_data}}" wx:key="" data-id="{{item.form_data.id}}" style="{{data.list_style}};height: {{data.customFeature.mode !== 0 ? (data.customFeature.mode === 1 ? '300px ': '280px') : ''}};margin-bottom:{{data.customFeature.mode !== 0 ? '0px' : ''}}" data-contact="{{data.customFeature.ifUseContact}}" data-goods-type="{{item.form_data.goods_type}}" data-group="{{item.form_data.is_group_buy}}" data-groupid="{{item.form_data.group_buy_activity_id}}" data-hidestock="{{data.customFeature.isHideStock || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}"
+            catchtap="turnToGoodsDetail"
+            >
+        <view class="inner-content" style="vertical-align: top;">
+          <image class="list-img" src="{{item.form_data.cover}}" style="{{data.img_style}}position: relative;" mode="scaleToFill">
+              <image class="goods-subscript" wx:if="{{item.form_data.corner_mark > 0}}" src="{{item.form_data.corner_url}}"></image>
+          </image>
+          <view class="title-container" style="width: {{data.title_width.width}};">
+            <view class="title">{{item.form_data.title}}</view>
+            <block wx:if="{{data.customFeature.isShowVirtualPrice && data.customFeature.form == 'goods'}}">
+              <block wx:if="{{data.customFeature.mode == 0}}">
+                <view wx:if="{{!data.customFeature.isHideSales}}" style="width: {{data.title_width.width}};position:absolute;bottom: 0;padding-left: 10px;height:60%;">
+                  <view class="price" style="margin-bottom:10rpx;{{'color:' + data.storeStyle.theme }}">
+                    <text style="font-size:28.125rpx;margin-right: 10rpx;" wx:if="{{item.form_data.goods_type != 1 && item.form_data.price != '0.00'}}">¥</text>
+                    <text wx:if="{{item.form_data.goods_type != 1 && item.form_data.price != '0.00'}}">{{(item.form_data.goods_type != '1' ? item.form_data.price : (item.form_data.price != '0.00' ? item.form_data.price : '免费'))}}</text>
+                    <text wx:if="{{item.form_data.max_can_use_integral != 0 && item.form_data.goods_type != 1 && item.form_data.price != '0.00'}}">+</text>
+                    <text wx:if="{{item.form_data.max_can_use_integral != 0}}">{{item.form_data.max_can_use_integral}}积分</text>
+                  </view>
+                  <view style="bottom:0;"><text class="sales">销量：{{item.form_data.sales}}</text><label wx:if="{{item.form_data.is_group_buy != 1 &&data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) >= 0) && (data.customFeature.form == 'goods'||data.customFeature.form == 'tostore')}}" class="addShoppingcart ico-moon icon-{{data.customFeature.addShoppingCartImageSrc || 'addshoppingcart1'}}" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"></label><label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) < 0) && (data.customFeature.form == 'goods'||data.customFeature.form == 'tostore')}}" class="addShoppingcart shoppingImage" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"><image src="{{data.customFeature.addShoppingCartImageSrc}}"></image></label></view>
+                </view>
+                <view wx:if="{{data.customFeature.isHideSales}}" style="width: {{data.title_width.width}};padding-left: 10px;">
+                  <view class="price" style="{{'color:' + data.storeStyle.theme }}">
+                    <text style="font-size:28.125rpx;margin-right: 10rpx;color: {{data.storeStyle.theme }}" wx:if="{{item.form_data.goods_type != 1 && item.form_data.price != '0.00'}}">¥</text>
+                    <text style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.goods_type != 1 && item.form_data.price != '0.00'}}">{{(item.form_data.goods_type != '1' ? item.form_data.price : (item.form_data.price != '0.00' ? item.form_data.price : '免费'))}}</text>
+                    <text style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.max_can_use_integral != 0 && item.form_data.goods_type != 1 && item.form_data.price != '0.00'}}">+</text>
+                    <text style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.max_can_use_integral != 0}}">{{item.form_data.max_can_use_integral}}积分</text>
+                  </view>
+                </view>
+              </block>
+              <block wx:else>
+                <view style="width: {{data.title_width.width}}">
+                  <view style="padding-left:0;">
+                    <view class="integral-flex-wrap">
+                      <text class="price" style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.price != '0.00'}}">¥ {{item.form_data.price}}</text>
+                      <text>
+                        <text class="price" style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.max_can_use_integral != 0 && item.form_data.price != '0.00'}}">+</text>
+                        <text class="price" style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.max_can_use_integral != 0}}">{{item.form_data.max_can_use_integral}}积分</text>
+                      </text>
+                    </view>
+                  </view>
+                  <view wx:if="{{ !data.customFeature.isHideSales }}" class="sales">销量：{{item.form_data.sales}}</view>
+                </view>
+              </block>
+            </block>
+            <block wx:else>
+              <view style="width: {{data.title_width.width}}">
+                <view class="integral-flex-wrap">
+                  <text class="price" wx:if="{{item.form_data.price != '0.00'}}" style="{{'color:' + data.storeStyle.theme }}">¥ {{item.form_data.price}}</text>
+                  <text>
+                    <text class="price" style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.max_can_use_integral != 0 && item.form_data.price != '0.00'}}">+</text>
+                    <text class="price" style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.max_can_use_integral != 0}}">{{item.form_data.max_can_use_integral}}积分</text>
+                  </text>
+                </view>
+                <text wx:if="{{ !data.customFeature.isHideSales }}" class="sales">销量：{{item.form_data.sales}}</text>
+              </view>
+            </block>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="js-list-container four-goods-list" data-list-index="0" wx:if="{{data.customFeature.mode === 3}}">
+      <view class="goods-list-item background-ele router js-to-detail"
+            wx:for="{{data.goods_data}}" wx:key="" data-id="{{item.form_data.id}}" style="{{data.list_style}}" data-contact="{{data.customFeature.ifUseContact}}" data-goods-type="{{item.form_data.goods_type}}" data-group="{{item.form_data.is_group_buy}}" data-groupid="{{item.form_data.group_buy_activity_id}}"  data-hidestock="{{data.customFeature.isHideStock || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice  || ''}}"
+            catchtap="turnToGoodsDetail">
+        <view style="position: relative;">
+          <image class="goods-subscript" wx:if="{{item.form_data.corner_mark > 0}}" src="{{item.form_data.corner_url}}"></image>
+          <image class="list-img" src="{{item.form_data.cover}}" style="{{data.img_style}}" mode="scaleToFill"></image>
+        </view>
+        <view class="four-goods-content">
+          <view class="title">{{item.form_data.title}}</view>
+          <view class="price-box">
+            <text class="integral-price price" style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.price != '0.00'}}">¥ {{item.form_data.price}}</text>
+            <text class="integral-price price" style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.max_can_use_integral != 0 && item.form_data.price != '0.00'}}">+</text>
+            <text class="integral-price price" style="{{'color:' + data.storeStyle.theme }}" wx:if="{{item.form_data.max_can_use_integral != 0}}">{{item.form_data.max_can_use_integral}}积分</text>
+            <text class="virtual_price" wx:if="{{item.form_data.virtual_price != 0 && data.customFeature.isShowVirtualPrice}}">¥{{item.form_data.virtual_price}}</text>
+            <label wx:if="{{data.customFeature.isHideSales && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) >= 0)}}" class="addShoppingcart ico-moon icon-{{data.customFeature.addShoppingCartImageSrc || 'addshoppingcart1'}}" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"></label>
+                <label wx:if="{{data.customFeature.isHideSales && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) < 0)}}" class="addShoppingcart shoppingImage" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"><image src="{{data.customFeature.addShoppingCartImageSrc}}"></image></label>
+          </view>
+          <view class="sales-box" wx:if="{{ !data.customFeature.isHideSales }}">
+            <text class="sales">销量：{{item.form_data.sales}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <template wx:if="{{data.loading}}" is="requestLoading"></template>
+    <template wx:if="{{data.is_more == 0 && data.goods_data.length == 0}}" is="requestNone" data="{{data: '你还未添加任何商品数据~'}}"></template>
+    <template wx:if="{{data.loadingFail}}" is="requestFail" data="{{refreshEvent: 'goodsScrollFunc', compId: data.compId}}"></template>
+    <template wx:if="{{data.is_more == 0 && data.goods_data.length > 0 && data.customFeature.isShowFinishText}}" is="requestAll"></template>
+    <view class="loading-btn" wx:if="{{data.customFeature.vesselAutoheight == 1 && data.customFeature.loadingMethod == 1 && data.customFeature.mode != 2 && data.is_more && data.is_more != 0 && !data.loading && !data.loadingFail }}" data-compid="{{data.compId}}" bindtap="goodsScrollFunc">
+      <image wx:if="{{data.customFeature.loadingStyle == 'img'}}" mode="aspectFill" src="{{data.customFeature.loadingImg}}"></image>
+      <text wx:elif="{{data.customFeature.loadingStyle == 'text'}}" style="color: {{data.customFeature.loadingColor}};">{{data.customFeature.loadingText}}</text>
+    </view>
+  </scroll-view>
+</template>
+
+<!-- 判断商品是否包邮 -->
+<wxs module="goodsExpressFree">
+  var isFree = function(goods) {
+    var expressFeeSort = goods.form_data.goods_express_data.express_fee_sort;
+    if(expressFeeSort.length == 1 && expressFeeSort[0] == 0){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  module.exports.isFree = isFree;
+</wxs>
+<template name="zcGoodsList">
+  <scroll-view class="element goods-list scroll-ele goods-list-mode-{{data.customFeature.mode}} {{(data.customFeature.mode == 2 && data.curpage > 0) ? 'hor-request-status' : ''}}"
+               data-param="{{data.param}}"
+               data-compid="{{data.compId}}"
+               data-type="goods-list"
+               style="{{data.style}}"
+               scroll-y="{{(data.customFeature.mode == 2 || data.customFeature.vesselAutoheight != 0) ? false : true}}"
+               scroll-x="{{data.customFeature.mode == 2? true: false}}"
+               scroll-top="{{data.scrollTop}}"
+               data-curpage="{{data.curpage}}"
+               bindscrolltolower="goodsScrollFunc"
+               bindanimationend="animationEnd">
+    <view class="js-list-container hotel_appointment" wx:if="{{data.customFeature.form == 'new_appointment' && data.customFeature.unit == 3}}" data-goods-type="10" data-unit="1" catchtap='turnToGoodsDetail'>
+      <view class='hotel-section area'>
+        <view class='box'>
+          <view class='h'>目的地</view>
+          <!-- <view class='p'>XX市XX区XX街道</view> -->
+        </view>
+        <view class='ico-moon icon-rightarrow'></view>
+      </view>
+       <wxs module="hotelDefaultTime">
+        var defaultTime = function(date){
+          var date =getDate(date) || getDate(),
+          nextDate =getDate(getDate().setDate(date.getDate()+1)),
+          dayList = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+          start_day = dayList[date.getDay()],
+          end_day =dayList[nextDate.getDay()],
+          start_date = date.getMonth()+1 +'月'+date.getDate()+'日',
+          end_date = nextDate.getMonth()+1 +'月'+nextDate.getDate()+'日';
+          return {
+            start_day:start_day,
+            end_day:end_day,
+            start_date:start_date,
+            end_date:end_date
+          }
+        }
+        module.exports = defaultTime
+      </wxs>
+      <view class='hotel-section time'>
+        <view class='enter-time'>
+          <view class='h'>{{hotelDefaultTime(data.customFeature.now_date).start_day}} 入住</view>
+          <view class='p'>{{hotelDefaultTime(data.customFeature.now_date).start_date}}</view>
+        </view>
+        <view class='dis-time'>
+          共1晚
+        </view>
+        <view class='leave-time'>
+          <view class='h'>{{hotelDefaultTime(data.customFeature.now_date).end_day}} 离店</view>
+          <view class='p'>{{hotelDefaultTime(data.customFeature.now_date).end_date}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="js-list-container" data-list-index="0" wx:elif="{{data.customFeature.mode !== 3  && data.customFeature.unit != 3}}">
+      <view class="goods-list-item background-ele router js-to-detail"
+            wx:for="{{data.goods_data}}" wx:key="" data-id="{{item.form_data.id}}" style="{{data.list_style}}" data-goods-type="{{item.form_data.goods_type}}" data-group="{{item.form_data.is_group_buy}}" data-groupid="{{item.form_data.group_buy_activity_id}}" catchtap="turnToGoodsDetail">
+        <view class="inner-content">
+          <image class="list-img" src="{{item.form_data.cover}}" style="{{data.img_style}}position: relative;" mode="scaleToFill">
+              <image class="goods-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 0}}" src="{{item.form_data.corner_url}}"></image>
+          </image>
+          <view class="title-container" style="width: {{data.title_width.width}};">
+            <view class="title"><image class="title-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 1}}" src="{{item.form_data.corner_url}}"></image>{{item.form_data.title}}</view>
+            <block wx:if="{{data.customFeature.isShowVirtualPrice && ( data.customFeature.form == 'goods' || data.customFeature.form == 'new_appointment')}}">
+              <block wx:if="{{data.customFeature.mode == 0}}">
+                <view wx:if="{{!data.customFeature.isHideSales}}" style="width: {{data.title_width.width}};position:absolute;bottom: 0;padding-left: 10px;height:60%;">
+                  <view class="price" style="margin-bottom:10rpx;{{'color:' + data.storeStyle.theme }}"><text style="font-size:28.125rpx;margin-right: 10rpx;" wx:if="{{item.form_data.goods_type != 1 && item.form_data.price != '0.00'}}">¥</text><text>{{(item.form_data.goods_type != '1' ? item.form_data.price : (item.form_data.price != '0.00' ? item.form_data.price : '免费'))}}</text><text class="virtual_price" wx:if="{{item.form_data.virtual_price != 0}}">¥{{item.form_data.virtual_price}}</text></view>
+                  <view style="bottom:0;"><text class="sales">销量：{{item.form_data.sales}}</text><label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.form != 'new_appointment'&& data.customFeature.form != 'appointment' &&data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) >= 0) && (data.customFeature.form == 'goods'||data.customFeature.form == 'tostore')}}" class="addShoppingcart ico-moon icon-{{data.customFeature.addShoppingCartImageSrc || 'addshoppingcart1'}}" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"></label><label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) < 0) && (data.customFeature.form == 'goods'||data.customFeature.form == 'tostore')}}" class="addShoppingcart shoppingImage" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"><image src="{{data.customFeature.addShoppingCartImageSrc}}"></image></label></view>
+                </view>
+                <view wx:if="{{data.customFeature.isHideSales}}" style="width: {{data.title_width.width}};padding-left: 10px;">
+                  <view class="price" style="{{'color:' + data.storeStyle.theme }}">
+                    <text style="font-size:28.125rpx;margin-right: 10rpx;" wx:if="{{item.form_data.goods_type != 1 && item.form_data.price != '0.00'}}">¥</text><text>{{(item.form_data.goods_type != '1' ? item.form_data.price : (item.form_data.price != '0.00' ? item.form_data.price : '免费'))}}</text>
+                  <text class="virtual_price" wx:if="{{item.form_data.virtual_price != 0}}">¥{{item.form_data.virtual_price}}</text>
+                  <label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.form != 'new_appointment'&& data.customFeature.form != 'appointment' && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) >= 0) }}" class="addShoppingcart ico-moon icon-{{data.customFeature.addShoppingCartImageSrc || 'addshoppingcart1'}}" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"></label>
+                  <label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.form != 'new_appointment'&& data.customFeature.form != 'appointment' &&data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) < 0)}}" class="addShoppingcart shoppingImage" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"><image src="{{data.customFeature.addShoppingCartImageSrc}}"></image></label></view>
+                </view>
+              </block>
+              <block wx:else>
+                <view style="width: {{data.title_width.width}}">
+                  <view style="padding-left:0;">
+                  <text class="price" style="{{'color:' + data.storeStyle.theme }}">¥ {{item.form_data.price}}</text>
+                  <text class="virtual_price" style="margin-left: 0;" wx:if="{{item.form_data.virtual_price != 0}}">¥{{item.form_data.virtual_price}}</text>
+                  </view>
+                  <text wx:if="{{ !data.customFeature.isHideSales }}" class="sales">销量：{{item.form_data.sales}}</text>
+                  <label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.form != 'new_appointment'&& data.customFeature.form != 'appointment' && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) >= 0) }}" class="addShoppingcart ico-moon icon-{{data.customFeature.addShoppingCartImageSrc || 'addshoppingcart1'}}" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"></label>
+                  <label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.form != 'new_appointment'&& data.customFeature.form != 'appointment' && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) < 0) }}" class="addShoppingcart shoppingImage" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"><image src="{{data.customFeature.addShoppingCartImageSrc}}"></image></label>
+                </view>
+              </block>
+            </block>
+            <block wx:else>
+              <view style="width: {{data.title_width.width}}">
+                <text class="price" style="{{'color:' + data.storeStyle.theme }}">¥ {{item.form_data.price}}</text>
+                <text wx:if="{{ !data.customFeature.isHideSales }}" class="sales">销量：{{item.form_data.sales}}</text>
+                <label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.form != 'new_appointment'&& data.customFeature.form != 'appointment' && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) >= 0)}}" class="addShoppingcart ico-moon icon-{{data.customFeature.addShoppingCartImageSrc || 'addshoppingcart1'}}" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"></label>
+                <label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.form != 'new_appointment'&& data.customFeature.form != 'appointment' && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) < 0)}}" class="addShoppingcart shoppingImage" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"><image src="{{data.customFeature.addShoppingCartImageSrc}}"></image></label>
+              </view>
+            </block>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="js-list-container four-goods-list" data-list-index="0" wx:if="{{data.customFeature.mode === 3 && data.customFeature.unit != 3}}">
+      <view class="goods-list-item background-ele router js-to-detail"
+            wx:for="{{data.goods_data}}" wx:key="" data-id="{{item.form_data.id}}" style="{{data.list_style}}" data-goods-type="{{item.form_data.goods_type}}" data-group="{{item.form_data.is_group_buy}}" data-groupid="{{item.form_data.group_buy_activity_id}}" catchtap="turnToGoodsDetail">
+        <view style="position: relative;">
+          <image class="goods-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 0}}" src="{{item.form_data.corner_url}}"></image>
+          <image class="list-img" src="{{item.form_data.cover}}" style="{{data.img_style}}" mode="scaleToFill"></image>
+        </view>
+        <view class="four-goods-content">
+          <view class="title"><image class="title-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 1}}" src="{{item.form_data.corner_url}}"></image>{{item.form_data.title}}</view>
+          <view class="price-box">
+            <text class="real-price" style="{{'color:' + data.storeStyle.theme }}">¥ {{item.form_data.price}}</text>
+            <text class="virtual_price" wx:if="{{item.form_data.virtual_price != 0 && data.customFeature.isShowVirtualPrice}}">¥{{item.form_data.virtual_price}}</text>
+            <label wx:if="{{data.customFeature.isHideSales && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) >= 0)}}" class="addShoppingcart ico-moon icon-{{data.customFeature.addShoppingCartImageSrc || 'addshoppingcart1'}}" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"></label>
+                <label wx:if="{{data.customFeature.isHideSales && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) < 0)}}" class="addShoppingcart shoppingImage" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"><image src="{{data.customFeature.addShoppingCartImageSrc}}"></image></label>
+          </view>
+          <view class="sales-box" wx:if="{{ !data.customFeature.isHideSales }}">
+            <text class="sales">销量：{{item.form_data.sales}}</text>
+            <label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.form != 'new_appointment' && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) >= 0)}}" class="addShoppingcart ico-moon icon-{{data.customFeature.addShoppingCartImageSrc || 'addshoppingcart1'}}" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"></label>
+            <label wx:if="{{item.form_data.is_group_buy != 1 && data.customFeature.form != 'new_appointment' && data.customFeature.isShoppingCart && (addshoppingcartImageModule.isImage(data.customFeature.addShoppingCartImageSrc) < 0)}}" class="addShoppingcart shoppingImage" data-id="{{item.form_data.id}}" data-buynow="{{data.customFeature.isBuyNow || ''}}" data-isshowvirtualprice="{{data.customFeature.isShowVirtualPrice}}" catchtap="{{ item.form_data.goods_type == 0 ? 'showGoodsShoppingcart' : 'showAddShoppingcart' }}"><image src="{{data.customFeature.addShoppingCartImageSrc}}"></image></label>
+          </view>
+        </view>
+      </view>
+    </view>
+    <template wx:if="{{data.loading}}" is="requestLoading"></template>
+    <template wx:if="{{data.is_more == 0 && data.goods_data.length == 0  && data.customFeature.unit != 3}}" is="requestNone" data="{{data: '你还未添加任何商品数据~'}}"></template>
+    <template wx:if="{{data.loadingFail}}" is="requestFail" data="{{refreshEvent: 'goodsScrollFunc', compId: data.compId}}"></template>
+    <template wx:if="{{data.is_more == 0 && data.goods_data.length > 0 && data.customFeature.isShowFinishText}}" is="requestAll"></template>
+    <view class="loading-btn" wx:if="{{data.customFeature.vesselAutoheight == 1 && data.customFeature.loadingMethod == 1 && data.customFeature.mode != 2 && data.is_more && data.is_more != 0 && !data.loading && !data.loadingFail }}" data-compid="{{data.compId}}" bindtap="goodsScrollFunc">
+      <image wx:if="{{data.customFeature.loadingStyle == 'img'}}" mode="aspectFill" src="{{data.customFeature.loadingImg}}"></image>
+      <text wx:elif="{{data.customFeature.loadingStyle == 'text'}}" style="color: {{data.customFeature.loadingColor}};">{{data.customFeature.loadingText}}</text>
+    </view>
+  </scroll-view>
+</template>
+<!-- 电商新样式样式 -->
+<template name="newGoodsList">
+  <scroll-view class="new-goods-list {{(data.customFeature.mode == 2 && data.curpage > 0) ? 'hor-request-status' : ''}}"
+               data-param="{{data.param}}"
+               data-compid="{{data.compId}}"
+               data-type="goods-list"
+               style="{{data.style + (data.customFeature.mode != 0 ? 'background: #f3f3f3;' : '')}}"
+               scroll-y="{{data.customFeature.mode == 2 ? false : true}}"
+               scroll-x="{{data.customFeature.mode == 2 ? true : false}}"
+               scroll-top="{{data.scrollTop}}"
+               data-curpage="{{data.curpage}}"
+               bindscrolltolower="goodsScrollFunc"
+               bindanimationend="animationEnd">
+    <!-- 样式1 -->
+    <block wx:if="{{ data.customFeature.mode == 0 }}">
+      <view class="new-goods-list-one">
+        <view class="goods-content" wx:for="{{data.goods_data}}" wx:key="" data-id="{{item.form_data.id}}" data-goods-type="{{item.form_data.goods_type}}" catchtap="turnToGoodsDetail" data-group="{{item.form_data.is_group_buy}}" data-groupid="{{item.form_data.group_buy_activity_id}}" >
+          <image class="goods-image" src="{{item.form_data.cover}}" mode="scaleToFill">
+            <image class="goods-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 0}}" src="{{item.form_data.corner_url}}"></image>
+          </image>
+          <!-- 样式1-1 -->
+          <view wx:if="{{ data.customFeature.styleMode == '0-1' }}" class="goods-detail">
+            <view class="title"><image class="title-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 1}}" src="{{item.form_data.corner_url}}"></image>{{item.form_data.title}}</view>
+            <view class="discount-box">
+              <text class="discount" wx:if="{{item.form_data.virtual_price != 0}}" style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}">{{ item.form_data.discount }}折优惠</text>
+              <text wx:if="{{goodsExpressFree.isFree(item)}}" class="express" style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}">包邮</text>
+            </view>
+            <view class="price-box">
+              <text style="{{'color:' + data.storeStyle.theme}}" class="real-price">￥{{item.form_data.price}}</text>
+              <text wx:if="{{item.form_data.virtual_price != 0}}" class="virtual-price">¥{{item.form_data.virtual_price}}</text>
+            </view>
+            <view class="sales-box">
+              <text class="sales">{{item.form_data.sales}}人付款</text>
+              <label style="{{'color:' + data.storeStyle.theme}}" class="shopping-icon ico-moon icon-addshoppingcart5" data-id="{{item.form_data.id}}" catchtap="showGoodsShoppingcart"></label>
+            </view>
+          </view>
+          <!-- 样式1-1 -->
+          <!-- 样式1-2 -->
+          <view wx:if="{{ data.customFeature.styleMode == '0-2' }}" class="goods-detail one-two-mode">
+            <view class="title"><image class="title-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 1}}" src="{{item.form_data.corner_url}}"></image>{{item.form_data.title}}</view>
+            <text class="virtual-price">{{item.form_data.virtual_price != 0 ? '¥' + item.form_data.virtual_price : ''}}</text>
+            <view class="price-box">
+              <text style="{{'color:' + data.storeStyle.theme }}" class="real-price">￥{{item.form_data.price}}</text>
+              <text style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}" class="discount two-style-discount" wx:if="{{item.form_data.virtual_price != 0}}"><text style="{{'border-right-color:' + data.storeStyle.theme + '33'}}" class="trangel"></text>{{ item.form_data.discount }}折</text>
+            </view>
+            <view class="sales-box">
+              <text wx:if="{{goodsExpressFree.isFree(item)}}" class="express" style="{{'color:' + data.storeStyle.theme + ';border-color:' + data.storeStyle.theme}}">包邮</text>
+              <text class="sales">{{item.form_data.sales}}人付款</text>
+              <label style="{{'color:' + data.storeStyle.theme}}" class="shopping-icon ico-moon icon-addshoppingcart5" data-id="{{item.form_data.id}}" catchtap="showGoodsShoppingcart"></label>
+            </view>
+          </view>
+          <!-- 样式1-2 -->
+        </view>
+      </view>
+    </block>
+    <!-- 样式2 -->
+    <block wx:if="{{ data.customFeature.mode == 1 }}">
+      <view class="new-goods-list-two">
+        <view class="goods-content" wx:for="{{data.goods_data}}" wx:key="" data-id="{{item.form_data.id}}" data-goods-type="{{item.form_data.goods_type}}" catchtap="turnToGoodsDetail"  data-group="{{item.form_data.is_group_buy}}" data-groupid="{{item.form_data.group_buy_activity_id}}" >
+          <image class="list-img" src="{{item.form_data.cover}}" style="width: 360rpx;height: 360rpx;" mode="scaleToFill">
+            <image class="goods-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 0}}" src="{{item.form_data.corner_url}}"></image>
+          </image>
+          <view class="title"><image class="title-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 1}}" src="{{item.form_data.corner_url}}"></image>{{item.form_data.title}}</view>
+          <!-- 样式2-1 -->
+          <view wx:if="{{ data.customFeature.styleMode == '1-1' }}" class="goods-detail">
+            <view class="discount-box">
+              <text class="discount" wx:if="{{item.form_data.virtual_price != 0}}" style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}">{{ item.form_data.discount }}折优惠</text>
+              <text wx:if="{{goodsExpressFree.isFree(item)}}" class="express" style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}">包邮</text>
+            </view>
+            <view class="price-box">
+              <text style="{{'color:' + data.storeStyle.theme }}" class="real-price">￥{{item.form_data.price}}</text>
+              <text wx:if="{{item.form_data.virtual_price != 0}}" class="virtual-price">¥{{item.form_data.virtual_price}}</text>
+            </view>
+            <view class="sales-box">
+              <text class="sales">{{item.form_data.sales}}人付款</text>
+              <label style="{{'color:' + data.storeStyle.theme}}" class="shopping-icon ico-moon icon-addshoppingcart5" data-id="{{item.form_data.id}}" catchtap="showGoodsShoppingcart"></label>
+            </view>
+          </view>
+          <!-- 样式2-1 -->
+          <!-- 样式2-2 -->
+          <view wx:if="{{ data.customFeature.styleMode == '1-2' }}" class="goods-detail two-two-mode">
+            <text class="virtual-price">{{item.form_data.virtual_price != 0 ? '¥' + item.form_data.virtual_price : ''}}</text>
+            <view class="price-box">
+              <text style="{{'color:' + data.storeStyle.theme }}" class="real-price">￥{{item.form_data.price}}</text>
+              <text style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}" class="discount two-style-discount" wx:if="{{item.form_data.virtual_price != 0}}"><text style="{{'border-right-color:' + data.storeStyle.theme + '33'}}" class="trangel"></text>{{ item.form_data.discount }}折</text>
+            </view>
+            <view class="sales-box">
+              <text wx:if="{{goodsExpressFree.isFree(item)}}" class="express" style="{{'color:' + data.storeStyle.theme + ';border-color:' + data.storeStyle.theme}}">包邮</text>
+              <text class="sales">{{item.form_data.sales}}人付款</text>
+              <label style="{{'color:' + data.storeStyle.theme}}" class="shopping-icon ico-moon icon-addshoppingcart5" data-id="{{item.form_data.id}}" catchtap="showGoodsShoppingcart"></label>
+            </view>
+          </view>
+          <!-- 样式2-2 -->
+        </view>
+      </view>
+    </block>
+    <!-- 样式3 -->
+    <block wx:if="{{ data.customFeature.mode == 2 }}">
+      <view class="new-goods-list-three">
+        <view class="goods-content" wx:for="{{data.goods_data}}" wx:key="" data-id="{{item.form_data.id}}" data-goods-type="{{item.form_data.goods_type}}" catchtap="turnToGoodsDetail"  data-group="{{item.form_data.is_group_buy}}" data-groupid="{{item.form_data.group_buy_activity_id}}" >
+          <image class="list-img" src="{{item.form_data.cover}}" style="width: 360rpx;height: 360rpx;" mode="scaleToFill">
+            <image class="goods-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 0}}" src="{{item.form_data.corner_url}}"></image>
+          </image>
+          <view class="title"><image class="title-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 1}}" src="{{item.form_data.corner_url}}"></image>{{item.form_data.title}}</view>
+          <!-- 样式3-1 -->
+          <view wx:if="{{ data.customFeature.styleMode == '2-1' }}" class="goods-detail">
+            <view class="discount-box">
+              <text class="discount" wx:if="{{item.form_data.virtual_price != 0}}" style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}">{{ item.form_data.discount }}折优惠</text>
+              <text wx:if="{{goodsExpressFree.isFree(item)}}" class="express" style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}">包邮</text>
+            </view>
+            <view class="price-box">
+              <text style="{{'color:' + data.storeStyle.theme }}" class="real-price">￥{{item.form_data.price}}</text>
+              <text wx:if="{{item.form_data.virtual_price != 0}}" class="virtual-price">¥{{item.form_data.virtual_price}}</text>
+            </view>
+            <view class="sales-box">
+              <text class="sales">{{item.form_data.sales}}人付款</text>
+              <label style="{{'color:' + data.storeStyle.theme}}" class="shopping-icon ico-moon icon-addshoppingcart5" data-id="{{item.form_data.id}}" catchtap="showGoodsShoppingcart"></label>
+            </view>
+          </view>
+          <!-- 样式3-1 -->
+          <!-- 样式3-2 -->
+          <view wx:if="{{ data.customFeature.styleMode == '2-2' }}" class="goods-detail three-two-mode">
+            <text class="virtual-price">{{item.form_data.virtual_price != 0 ? '¥' + item.form_data.virtual_price : ''}}</text>
+            <view class="price-box">
+              <text style="{{'color:' + data.storeStyle.theme }}" class="real-price">￥{{item.form_data.price}}</text>
+              <text style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}" class="discount two-style-discount" wx:if="{{item.form_data.virtual_price != 0}}"><text style="{{'border-right-color:' + data.storeStyle.theme + '33'}}" class="trangel"></text>{{ item.form_data.discount }}折</text>
+            </view>
+            <view class="sales-box">
+              <text wx:if="{{goodsExpressFree.isFree(item)}}" class="express" style="{{'color:' + data.storeStyle.theme + ';border-color:' + data.storeStyle.theme}}">包邮</text>
+              <text class="sales">{{item.form_data.sales}}人付款</text>
+              <label style="{{'color:' + data.storeStyle.theme}}" class="shopping-icon ico-moon icon-addshoppingcart5" data-id="{{item.form_data.id}}" catchtap="showGoodsShoppingcart"></label>
+            </view>
+          </view>
+          <!-- 样式3-2 -->
+        </view>
+      </view>
+    </block>
+    <!-- 样式4 -->
+    <block wx:if="{{ data.customFeature.mode == 3 }}">
+      <view class="new-goods-list-four">
+        <view class="goods-content" wx:for="{{data.goods_data}}" wx:key="" data-id="{{item.form_data.id}}" data-goods-type="{{item.form_data.goods_type}}" catchtap="turnToGoodsDetail"  data-group="{{item.form_data.is_group_buy}}" data-groupid="{{item.form_data.group_buy_activity_id}}">
+          <image class="goods-image" src="{{item.form_data.cover}}" mode="scaleToFill">
+            <image class="goods-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 0}}" src="{{item.form_data.corner_url}}"></image>
+          </image>
+          <!-- 样式4-1 -->
+          <view wx:if="{{ data.customFeature.styleMode == '3-1' }}" class="goods-detail">
+            <view class="title"><image class="title-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 1}}" src="{{item.form_data.corner_url}}"></image>{{item.form_data.title}}</view>
+            <view class="discount-box">
+              <text class="discount" wx:if="{{item.form_data.virtual_price != 0}}" style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}">{{ item.form_data.discount }}折优惠</text>
+              <text wx:if="{{goodsExpressFree.isFree(item)}}" class="express" style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}">包邮</text>
+              <text class="sales">{{item.form_data.sales}}人付款</text>
+            </view>
+            <view class="price-box">
+              <text style="{{'color:' + data.storeStyle.theme }}" class="real-price">￥{{item.form_data.price}}</text>
+              <text wx:if="{{item.form_data.virtual_price != 0}}" class="virtual-price">¥{{item.form_data.virtual_price}}</text>
+              <label style="{{'color:' + data.storeStyle.theme}}" class="shopping-icon ico-moon icon-addshoppingcart5" data-id="{{item.form_data.id}}" catchtap="showGoodsShoppingcart"></label>
+            </view>
+            <view class="sales-box">
+            </view>
+          </view>
+          <!-- 样式4-1 -->
+          <!-- 样式4-2 -->
+          <view wx:if="{{ data.customFeature.styleMode == '3-2' }}" class="goods-detail four-two-mode">
+            <view class="title"><image class="title-subscript" wx:if="{{item.form_data.corner_mark > 0 && item.form_data.corner_position == 1}}" src="{{item.form_data.corner_url}}"></image>{{item.form_data.title}}</view>
+            <view class="price-box">
+              <text style="{{'color:' + data.storeStyle.theme }}" class="real-price">￥{{item.form_data.price}}</text>
+              <text wx:if="{{item.form_data.virtual_price != 0}}" class="virtual-price">¥{{item.form_data.virtual_price}}</text>
+              <text style="{{'color:' + data.storeStyle.theme + ';background:' + data.storeStyle.theme + '33'}}" class="discount two-style-discount" wx:if="{{item.form_data.virtual_price != 0}}"><text style="{{'border-right-color:' + data.storeStyle.theme + '33'}}" class="trangel"></text>{{ item.form_data.discount }}折</text>
+            </view>
+            <view class="discount-box">
+              <text wx:if="{{goodsExpressFree.isFree(item)}}" class="express" style="{{'color:' + data.storeStyle.theme + ';border-color:' + data.storeStyle.theme}}">包邮</text>
+              <text class="sales">{{item.form_data.sales}}人付款</text>
+              <label style="{{'color:' + data.storeStyle.theme}}" class="shopping-icon ico-moon icon-addshoppingcart5" data-id="{{item.form_data.id}}" catchtap="showGoodsShoppingcart"></label>
+            </view>
+          </view>
+          <!-- 样式4-2 -->
+        </view>
+      </view>
+    </block>
+    <template wx:if="{{data.loading}}" is="requestLoading"></template>
+    <template wx:if="{{data.is_more == 0 && data.goods_data.length == 0}}" is="requestNone" data="{{data: '你还未添加任何商品数据~'}}"></template>
+    <template wx:if="{{data.loadingFail}}" is="requestFail" data="{{refreshEvent: 'goodsScrollFunc', compId: data.compId}}"></template>
+    <template wx:if="{{data.is_more == 0 && data.goods_data.length > 0 && data.customFeature.isShowFinishText}}" is="requestAll"></template>
+    <view class="loading-btn" wx:if="{{data.customFeature.vesselAutoheight == 1 && data.customFeature.loadingMethod == 1 && data.customFeature.mode != 2 && data.is_more && data.is_more != 0 && !data.loading && !data.loadingFail }}" data-compid="{{data.compId}}" bindtap="goodsScrollFunc">
+      <image wx:if="{{data.customFeature.loadingStyle == 'img'}}" mode="aspectFill" src="{{data.customFeature.loadingImg}}"></image>
+      <text wx:elif="{{data.customFeature.loadingStyle == 'text'}}" style="color: {{data.customFeature.loadingColor}};">{{data.customFeature.loadingText}}</text>
+    </view>
+  </scroll-view>
+</template>
+<!-- 热区 -->
+<template name="zcHotSpot">
+  <view class="element hotspot" style="{{data.style}}" data-event-params="{{data.customFeature}}" catchtap="{{data.customFeature.action && data.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">{{data.content}}</view>
+</template>
+
+<!-- 列表 -->
+<template name="zcList">
+  <view class="element list" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+      <view class="list-container {{data.customFeature.sec_mode}}">
+        <block wx:for="{{data.content}}" wx:key="">
+          <block wx:if="{{item.customFeature.action == 'turn-to-xcx'}}">
+            <view class="list-item background-ele" style="{{item.listStyle}}">
+              <navigator target="miniProgram" open-type="navigate" app-id="{{item.customFeature['xcx-appid']}}" path="{{item.customFeature['xcx-page-url'] || ''}}" version="release">
+                <image class="list-img" src="{{item.pic}}" style="{{item.imgStyle}}"></image>
+                <view class="title-container" style="{{item.titleWidth}}">
+                  <view class="title">{{item.title}}</view>
+                  <view class="sec-title" style="{{item.secTitleStyle}}">{{item.secTitle}}</view>
+                </view>
+              </navigator>
+            </view>
+          </block>
+          <block wx:else>
+            <view class="list-item background-ele" style="{{item.listStyle}}" data-event-params="{{item.customFeature}}" catchtap="{{item.customFeature.action && item.customFeature.action != 'none' ? 'tapEventCommonHandler' : ''}}">
+              <image class="list-img" src="{{item.pic}}" style="{{item.imgStyle}}"></image>
+              <view class="title-container" style="{{item.titleWidth}}">
+                <view class="title">{{item.title}}</view>
+                <view class="sec-title" style="{{item.secTitleStyle}}">{{item.secTitle}}</view>
+              </view>
+            </view>
+          </block>
+        </block>
+      </view>
+  </view>
+</template>
+
+<!-- 地图 -->
+<template name="zcMap">
+  <view class="element map" data-event-params="{{data.customFeature.markers_json_str}}" catchtap="tapMapDetail" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <view class="map-mask"></view>
+    <map class="map-module" hidden="{{data.customFeature.type != 'withmap' }}" longitude="{{data.customFeature.lng}}" latitude="{{data.customFeature.lat}}" markers="{{data.customFeature.markers}}" scale="17"></map>
+    <text class="icon-location ico-moon"></text><view class="map-link">{{data.content}}</view>
+  </view>
+</template>
+
+
+
+
+<!-- 排序组件 -->
+<template name="zcSort">
+  <view class="element sort" style="{{data.style}}" bindanimationend="animationEnd" data-compid="{{ data.compId }}">
+    <scroll-view scroll-x="true" data-selected="{{data.customFeature.selected}}" style="{{data.ul_style}}">
+      <block wx:for="{{data.content}}" wx:for-index="idx" wx:for-item="itemName" wx:key="">
+        <block wx:if="{{idx == data.customFeature.selected}}">
+          <view class="item refresh selected" catchtap="sortListFunc"
+                data-compid="{{ data.compId }}"
+                data-listid="{{data.customFeature.sort_object}}"
+                data-sortkey="{{itemName.customFeature.sort_key}}"
+                data-sortdirection="{{itemName.customFeature.sort_direction}}"
+                data-idx="{{idx}}"
+                style="color:{{data.customFeature.selectedColor}}">
+            <text>{{itemName.text}}</text>
+            <label class="arr-wrap" wx:if="{{ idx != 0 }}">
+              <text style="color: {{itemName.customFeature.sort_direction == 0 ? data.customFeature.selectedColor : '#ddd'}};" class="sort-arr arr-up">▲</text>
+              <text style="color: {{itemName.customFeature.sort_direction == 1 ? data.customFeature.selectedColor : '#ddd'}};" class="sort-arr arr-down">▼</text>
+            </label>
+          </view>
+        </block>
+        <block wx:else>
+          <view class="item refresh" catchtap="sortListFunc"
+                data-compid="{{ data.compId }}"
+                data-listid="{{data.customFeature.sort_object}}"
+                data-sortkey="{{itemName.customFeature.sort_key}}"
+                data-sortdirection="{{itemName.customFeature.sort_direction}}"
+                data-idx="{{idx}}"
+          >{{itemName.text}}</view>
+        </block>
+      </block>
+    </scroll-view>
+  </view>
+</template>
+
+<!-- 广告 -->
+<template name="zcAdvertising">
+  <view class="element advertising">
+    <ad unit-id="{{data.customFeature['advertisingId']}}" style="{{data.style}}"></ad>
+  </view>
+</template>
+
+<!-- 公众号 -->
+<template name="zcOfficialAccount">
+  <view class="element officialAccount">
+    <official-account style="{{data.style}}"></official-account>
+  </view>
+</template>
+
+<!-- 加载loading -->
+<template name="requestLoading">
+  <view class="loading-wrap">
+    <view class="loading-view">
+      <view class="loading-dot1"></view>
+      <view class="loading-dot2"></view>
+    </view>
+  </view>
+</template>
+
+<!-- 加载没有数据 -->
+<template name="requestNone">
+  <view class="request-none">
+    <image src="http://cdn.jisuapp.cn/static/webapp/images/request-none.png" mode="widthFix"></image>
+    <view>{{data || '暂无数据'}}</view>
+  </view>
+</template>
+
+<!-- 加载失败 -->
+<template name="requestFail">
+  <view class="request-fail">
+    <view>数据加载失败~ </view>
+    <button class="request-refresh-btn" data-compid="{{compId}}" bindtap="{{refreshEvent}}">刷新重试</button>
+  </view>
+</template>
+
+<!-- 加载完所有数据 -->
+<template name="requestAll">
+  <view class="request-all">没有更多了</view>
+</template>

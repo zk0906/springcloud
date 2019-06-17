@@ -1,0 +1,66 @@
+<component-getUserInfo showGetUserInfo="{{showGetUserInfo}}"></component-getUserInfo>
+<view class="search-content">
+  <!-- <view class="search-input">
+    <text class="ico-moon icon-search"></text>
+    <input placeholder="请输入搜索内容" type="text" bindinput="searchAddress"></input>
+  </view> -->
+  <view class="community-group-location" bindtap="changeLocation">
+    <text class="icon-goods-location ico-moon" style="color:#666"></text>
+    <text class="ellipsis location-name">{{localAddress || "定位中"}}</text>
+    <text class="arrow-down"></text>
+  </view>
+</view>
+<view class="community-list">
+  <view class="community-list-title" wx:if="{{nowCommunityCity != ''}}">当前社区</view>
+  <view class="community-list-content" bindtap="changeHomeCommunity" data-parm="{{nowCommunityCity}}" wx:if="{{nowCommunityCity != ''}}">
+    <view class="list-content-item">
+      <label class="avatar">
+        <image src="{{nowCommunityCity.logo}}"></image>
+      </label>
+      <text class="nick-name ellipsis">{{nowCommunityCity.nick_name}}</text>
+      <text class="distance-name" style="color: #ff7100">距离你{{nowCommunityCity.distance}}</text>
+    </view>
+    <view class="list-address-item">
+      <view>
+        <text class="icon-comRoom ico-moon"></text>
+        <label>小区名称：</label>
+      </view>
+      <view style="word-break:break-all;">{{nowCommunityCity.housing_estate}}</view>
+    </view>
+    <view class="list-address-item">
+      <view>
+        <text class="icon-goods-location ico-moon"></text>
+        <label>提货地点：</label>
+      </view>
+      <view style="word-break:break-all;">{{nowCommunityCity.address_detail}}</view>
+    </view>
+  </view>
+  <view class="community-list-title" wx:if="{{addressList.length}}">其他社区</view>
+  <view class="community-list-content" bindtap="changeHomeCommunity" data-parm="{{item}}" wx:for="{{addressList}}" wx:key="{{item.id}}">
+    <view class="list-content-item">
+      <label class="avatar">
+        <image src="{{item.logo}}"></image>
+      </label>
+      <text class="nick-name ellipsis">{{item.nick_name}}</text>
+      <text class="distance-name">距离你{{item.distance}}</text>
+    </view>
+    <view class="list-address-item">
+      <view>
+        <text class="icon-comRoom ico-moon"></text>
+        <label>小区名称：</label>
+      </view>
+      <view style="word-break:break-all;">{{item.housing_estate}}</view>
+    </view>
+    <view class="list-address-item">
+      <view>
+        <text class="icon-goods-location ico-moon"></text>
+        <label>提货地点：</label>
+      </view>
+      <view style="word-break:break-all;">{{item.address_detail}}</view>
+    </view>
+  </view>
+</view>
+<view class="community-apply">
+  <text>没有您要找的小区？立即</text>
+  <text style="color:#ff7100" catchtap="userCenterTurnToPage" data-router="myPromotion">成为团长</text>
+</view>

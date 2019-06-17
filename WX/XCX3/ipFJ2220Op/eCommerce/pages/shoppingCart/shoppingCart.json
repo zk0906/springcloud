@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText":"购物车",
+  "usingComponents":{
+    "component-getUserInfo": "/components/getUserInfo/getUserInfo",
+    "component-sinkingModal": "/components/sinkingModal/sinkingModal"
+  }
+}

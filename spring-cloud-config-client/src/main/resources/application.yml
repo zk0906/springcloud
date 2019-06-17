@@ -1,0 +1,26 @@
+server:
+  port: 7051
+spring:
+  application:
+    name: spring-cloud-config-cleint
+  cloud:
+    bus:                  #消息总线的配置
+      trace:
+        enabled: true      #开启消息跟踪
+  rabbitmq:                #配置文件需要增加RebbitMq的相关配置
+    host:
+    port: 5672
+    username: guest
+    password: guest
+
+#手动刷新端口,关闭安全验证
+#在1.5.x版本中通过management.security.enabled=false来暴露所有端点
+#Spring Boot 2.x 使用下面方式
+#方式1
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+

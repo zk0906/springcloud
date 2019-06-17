@@ -1,0 +1,53 @@
+.slide-panel {
+  white-space: nowrap;
+  overflow: hidden;
+}
+.slide-panel > view {
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.slide-panel > view > view {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.slide-panel .slide-panel-navitage {
+  position:absolute;
+  width:100%;
+  bottom:0;
+  height: 40rpx;
+  line-height: 40rp;
+}
+.slide-panel-navitage text {
+  width: 10rpx;
+  height: 10rpx;
+  display: inline-block;
+  vertical-align: middle;
+  margin:0 4rpx;
+  border-radius:4rpx;
+}
+.silde-panel-mode2 .sildeItem {
+  display: inline-block;
+  position: relative;
+  transition: transform 150ms linear;
+}
+.silde-panel-mode2 .sildeItem:first-child{
+  margin-left: 1px !important;
+}
+.silde-panel-mode2 .sildeItem .sildeItem-main {
+  position: relative;
+}
+.silde-panel-mode2 .sildeItem .sildeItem-title {
+  margin-top: 20rpx;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+.silde-panel-mode2 .sildeItem .sildeItem-pagination {
+  text-align: right;
+}

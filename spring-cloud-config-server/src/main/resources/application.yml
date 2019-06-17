@@ -1,0 +1,33 @@
+server:
+  port: 7001
+spring:
+  application:
+    name: spring-cloud-config-server
+  cloud:
+    config:
+      server:
+        git:
+#          uri: https://github.com/ityouknow/spring-cloud-starter/
+          #https://github.com/zk0906/config-repo.git
+          uri: https://github.com/zk0906/config-repo.git         # 配置git仓库的地址
+          search-paths: first                             # git仓库地址下的相对地址，可以配置多个，用,分割。
+          username: 14496505@qq.com
+          password: gt1380846
+    bus:                                        #消息总线的配置
+      trace:
+        enabled: true                            #开启消息跟踪
+  rabbitmq:                #配置文件需要增加RebbitMq的相关配置
+    host:
+    port: 5672
+    username: guest
+    password: guest
+management:         #关闭安全验证
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://peer1:1001/eureka/,http://peer2:1002/eureka/"

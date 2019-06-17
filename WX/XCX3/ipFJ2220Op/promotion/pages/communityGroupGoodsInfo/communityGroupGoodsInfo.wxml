@@ -1,0 +1,134 @@
+<import src="../../../components/wxParse/wxParse.wxml" />
+<component-getUserInfo showGetUserInfo="{{showGetUserInfo}}"></component-getUserInfo>
+<view>
+  <view class="group-user">
+    <image src="{{logo}}"></image>
+    <text class="ellipsis">{{nick_name}}</text>
+  </view>
+  <view class="good-header-dialog">
+    <view class="image-carousel-container">
+      <view class="slick-carousel-container" wx:if="{{communityGoodsList.form_data.img_urls}}">
+        <swiper autoplay="true" duration="1000" interval="5000">
+          <swiper-item wx:for="{{communityGoodsList.form_data.img_urls}}" wx:key="{{index}}">
+            <image class="slide-image" mode="aspectFill" src="{{item}}" lazy-load="true"></image>
+          </swiper-item>
+        </swiper>
+      </view>
+      <view class="slick-carousel-container" wx:else>
+        <image mode="aspectFill" class="slide-image" src="{{communityGoodsList.cover}}"></image>
+      </view>
+    </view>
+    <view class="good-info clearfix">
+      <view class="good-info-title">{{communityGoodsList.title}}</view>
+      <view class="good-info-model">
+        <label>销量：{{communityGoodsList.sales}}</label>
+        <label>库存：{{communityGoodsList.stock}}</label>
+      </view>
+      <view class="goods-describe">
+        <view class="goods-describe-price" data-virtual="{{(communityGoodsList.virtual_price == 0.00 || communityGoodsList.virtual_price == null) ? '' : '¥' + communityGoodsList.virtual_price}}">
+          ¥ {{communityGoodsList.price}}
+        </view>
+        <view class="goods-add">
+          <view class="goods-minus" wx:if="{{communityGoodsList.form_data.number != 0}}" bindtap="reduce">
+            -
+          </view>
+          <input class="goods-count" wx:if="{{communityGoodsList.form_data.number != 0}}" catchtap="stopInputNumber" bindinput="inputNumber" disabled="{{!!communityGoodsList.form_data.goods_model ? true : false}}" type="number" value="{{communityGoodsList.form_data.number}}"></input>
+          <view class="goods-plus {{communityGoodsList.form_data.number == 0 ? 'goods-none' : ''}}" bindtap="plus">
+            +
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="good-evaluate-dialog" wx:if="{{evaluateList.count}}">
+    <view class="evaluate-count">晒单评价（{{evaluateList.count}}）</view>
+    <view class="evaluate-content">
+      <view class="evaluate-list" wx:for="{{evaluateList.data}}" wx:key="{{item.id}}">
+        <view class="evaluate-list-score clearfix">
+          <image src="{{item.buyer_headimgurl}}"></image>
+          <text>{{item.buyer_nickname}}</text>
+          <text>
+            <text class="ico-moon icon-fullstar" style="{{item.assess_info.score >= 1 ? 'color:#ff7100':'#d5d5d5'}}"></text>
+            <text class="ico-moon icon-fullstar" style="{{item.assess_info.score >= 2 ? 'color:#ff7100':'#d5d5d5'}}"></text>
+            <text class="ico-moon icon-fullstar" style="{{item.assess_info.score >= 3 ? 'color:#ff7100':'#d5d5d5'}}"></text>
+            <text class="ico-moon icon-fullstar" style="{{item.assess_info.score >= 4 ? 'color:#ff7100':'#d5d5d5'}}"></text>
+            <text class="ico-moon icon-fullstar" style="{{item.assess_info.score >= 5 ? 'color:#ff7100':'#d5d5d5'}}"></text>
+          </text>
+        </view>
+        <view class="good-info">{{item.assess_info.content}}</view>
+        <scroll-view scroll-x="true" class="img-scroll" wx:if="{{ item.assess_info.has_img }}">
+          <view class="img-content" wx:for="{{item.assess_info.img_arr}}" wx:for-item="imgSrc" wx:key="" data-src="{{ imgSrc }}" data-srcarr="{{ item.assess_info.img_arr }}" catchtap="clickPlusImages">
+            <image src="{{ imgSrc }}"></image>
+          </view>
+        </scroll-view>
+        <view class="evaluate-list-time">
+          <label>{{item.add_time}}</label>
+        </view>
+      </view>
+      <view class="evaluate-list-more" bindtap="addMore" wx:if="{{evaluateList.is_more == 1}}">
+        查看更多
+        <text class="icon-downarrow ico-moon"></text>
+      </view>
+    </view>
+  </view>
+  <view class="good-describe-img">
+    <view class="evaluate-count" style="margin-bottom:30rpx;">商品详情</view>
+    <view style="padding-bottom:20rpx;">
+      <template is="wxParse" data="{{ wxParseData: wxParseDescription.nodes }}" />
+    </view>
+  </view>
+</view>
+
+<!-- 多规格选择 -->
+<view class="page-dialog-wrap" id="communityBuyDialog" catchtouchmove="stopMove" bindtap="closeGoodModel" hidden="{{showModel}}">
+  <view class="page-bottom-dialog" catchtap="stopPropagation">
+    <view class="pay-close-dialog page-dialog-close" bindtap="closeGoodModel">
+      <text class="ico-moon icon-closes"></text>
+    </view>
+    <view class="dialog-goods-header">
+      <view class="thumb">
+        <view class="thumb-wrap">
+          <image src="{{selectGoodsModelInfo.imgurl}}" class="pay-goods-cover"></image>
+        </view>
+      </view>
+      <view class="pay-goods-baseinfo">
+        <view class="pay-goods-price">
+          <view class="pay-current-price">
+            <view class="goods-describe-price" data-virtual="{{selectGoodsModelInfo.virtualPrice == 0.00 ? '' : '¥' + selectGoodsModelInfo.virtualPrice}}">
+              ¥ {{selectGoodsModelInfo.price}}
+            </view>
+          </view>
+          <view class="pay-goods-stock">库存 {{selectGoodsModelInfo.stock}}</view>
+          <view class="pay-checked-text clearfix">已选：{{selectGoodsModelInfo.models_text}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="communityBuyDialog-content">
+      <view class="pay-goods-models">
+        <view wx:for="{{ goodsInfo.model }}" wx:key="model.id" wx:for-item="model" wx:for-index="modelIndex">
+          <text class="model-title">{{model.name}}</text>
+          <label class="pills-list">
+            <label wx:for="{{ model.subModelName }}" wx:key="item.id" data-model-index="{{ modelIndex }}" data-submodel-index="{{ index }}" data-submodel-id="{{ model.subModelId[index] }}" class="subModel {{ selectGoodsModelInfo.models[modelIndex] == model.subModelId[index] ? 'select' : '' }}" bindtap="selectGoodsSubModel">
+              {{item}}
+            </label>
+          </label>
+        </view>
+      </view>
+      <view class="communityBuyDialog-buy-num" style="padding-left:10px;padding-right:10px;position:relative;">
+        <view class="clearfix">
+          <text>购买数量</text>
+          <view class="pull-right">
+            <view class="goods-add">
+              <view class="goods-minus" catchtap="clickGoodsMinusButton"> - </view>
+              <input class="goods-count" type="number" value="{{selectGoodsModelInfo.buyCount}}" bindinput="inputBuyCount"></input>
+              <view class="goods-plus" catchtap="clickGoodsPlusButton"> + </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="dialog-bottom" catchtap="addCark" data-param="{{selectGoodsModelInfo}}">
+      <view class="btn-orange pay-buy-next">确定</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,195 @@
+<component-getUserInfo showGetUserInfo="{{showGetUserInfo}}"></component-getUserInfo>
+<view class="community-content">
+  <view class="community-banner">
+    <swiper autoplay="true" duration="1000" interval="5000">
+      <swiper-item wx:for="{{communityInfo.banner}}" wx:key="{{index}}">
+        <image mode="widthFix" src="{{item}}"></image>
+      </swiper-item>
+    </swiper>
+  </view>
+  <view class="community-describe">
+    <view class="describe-title">{{communityInfo.title}}</view>
+    <view class="describe-time" style="justify-content:initial;-webkit-justify-content:initial;">
+      <text class="icon-comTime ico-moon"></text>
+      <text>{{communityInfo.start_date}}-{{communityInfo.end_date}}</text>
+    </view>
+    <view class="describe-intro" style="height: {{(showBtn && showMore) ?'168rpx':'auto'}}">
+      <label>{{communityInfo.illustration}}</label>
+      <view wx:if="{{showMore}}" bindtap="isShowMore" style="width:{{showBtn ? '' : '60rpx'}}">{{showBtn ? "展开详细" : "收起"}}</view>
+    </view>
+    <view class="describe-address" bindtap="openLocation">
+      <view class="ellipsis">
+        <text class="icon-comPack ico-moon"></text>
+        提货地点：{{leaderInfo.housing_estate}}{{leaderInfo.address_detail}}
+      </view>
+    </view>
+  </view>
+  <view class="community-goods">
+    <view class="describe-time goods-phone" data-phone="{{leaderInfo.phone}}" bindtap="callPhone">
+      <view>
+        <image mode="scaleToFill" src="{{leaderInfo.logo}}"></image>
+        <label class="ellipsis">团长：{{leaderInfo.nick_name}}</label>
+      </view>
+      <text class="icon-fn-phone ico-moon"></text>
+    </view>
+    <view class="myOrder-list-goods">
+      <view class="goods-item" wx:for="{{communityGoodsList}}" wx:key="{{item.id}}" data-index="{{index}}" bindtap="getGoodInfo">
+        <view class="goods-img">
+          <image mode="scaleToFill" src="{{item.cover}}"></image>
+        </view>
+        <view class="goods-describe">
+          <text class="goods-describe-title">{{item.title}}</text>
+          <view class="goods-describe-price" data-virtual="{{(item.virtual_price == 0.00 || item.virtual_price == null) ? '' : '¥' + item.virtual_price}}">
+            ¥{{item.price}}
+          </view>
+          <view class="goods-describe-model">
+            <label>已售{{item.sales}}件，剩余{{item.stock}}件</label>
+            <view class="goods-add">
+              <view class="goods-minus" wx:if="{{item.form_data.number != 0}}" data-index="{{index}}" catchtap="reduce">
+                -
+              </view>
+              <input class="goods-count" type="number" value="{{item.form_data.number}}" data-index="{{index}}" catchtap="stopInputNumber" bindinput="inputNumber" disabled="{{!!item.form_data.goods_model ? true : false}}" wx:if="{{item.form_data.number != 0}}"></input>
+              <view class="goods-plus {{item.form_data.number == 0 ? 'goods-none' : ''}}" data-index="{{index}}" catchtap="plus">
+                +
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="community-share">
+    <view class="share-item">
+      <view>{{communityInfo.view_count}}</view>
+      <view>
+        <text class="icon-comEye ico-moon"></text>
+        浏览
+      </view>
+    </view>
+    <view class="share-item">
+      <view>{{communityInfo.share_count}}</view>
+      <view>
+        <text class="icon-comShare ico-moon"></text>
+        分享
+      </view>
+    </view>
+    <view class="share-item">
+      <view>{{sold_count}}</view>
+      <view>
+        <text class="icon-comNote ico-moon"></text>
+        接龙
+      </view>
+    </view>
+  </view>
+  <view class="community-solitaire">
+    <view class="solitaire-item" wx:for="{{orderRecords}}" wx:key="{{index}}">
+      <view class="solitaire-item-title">
+        <label class="gray-level ">{{orderRecords.length - index}}</label>
+        <image src="{{item.buyer_info.logo || 'https://cdn.jisuapp.cn/static/jisuapp_editor/images/zhichi-default.png'}}"></image>
+        <label class="ellipsis" data-number="{{'+' + item.total_sold_number}}">{{item.buyer_info.nickname}}</label>
+        <label class="gray-level">{{item.add_time}}</label>
+      </view>
+      <view class="solitaire-item-list" wx:for="{{orderRecords[index].goods_info}}" wx:key="{{}}">
+        <view class="item-name">
+          <text>{{item.goods_name}}</text>
+          <text wx:if="{{item.model != ''}}" style="margin-left:10rpx;color: #999;">({{item.model}})</text>
+        </view>
+        <label class="origin-level">+{{item.num}}</label>
+      </view>
+    </view>
+  </view>
+</view>
+<view class="goods-bottom-opt">
+  <view class="opt-icon" bindtap="goToHomepage">
+    <view>
+      <text class="icon-back-to-home ico-moon"></text>
+    </view>
+    <view>首页</view>
+  </view>
+  <view class="opt-icon" bindtap="isShowCark">
+    <view>
+      <text class="ico-moon icon-new-goods-shopping"></text>
+    </view>
+    <view>购物车</view>
+    <text class="shopCarkCount" wx:if="{{shopCarkNumber != 0}}">{{shopCarkNumber}}</text>
+  </view>
+  <button open-type="share" class="opt-share">分享至群聊</button>
+  <view class="opt-pay" bindtap="isLogin">去结算</view>
+</view>
+<!-- 购物车 -->
+<view class="community-shopcark" catchtouchmove="stopMove" bindtap="isShowCark" hidden="{{showCark}}">
+  <view class="shopcark-view" catchtap="stopPropagation">
+    <view class="chosen-title">
+      已选商品
+      <view class="ico-moon icon-delete" catchtap="clearShopCark">清空</view>
+    </view>
+    <scroll-view class="scroll-content" scroll-y="true">
+      <view class="shopcark-view-list" wx:for="{{userShopCark}}" wx:key="{{index}}">
+        <view class="cart-info">
+          <view class="info-title ellipsis">{{item.title}}</view>
+          <view class="info-model" wx:if="{{item.modelId !== 0}}">{{item.models_text}}</view>
+        </view>
+        <view class="cart-price">¥{{item.total_price}}</view>
+        <view class="goods-add">
+          <view class="goods-minus" data-param="{{item}}" data-index="{{index}}" bindtap="removeGoods"> - </view>
+          <input class="goods-count" type="number" disabled="true" value="{{item.buyCount}}"></input>
+          <view class="goods-plus" data-param="{{item}}" data-index="{{index}}" bindtap="addGoods"> + </view>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="community-shopcark-btn" bindtap="isLogin">去结算</view>
+  </view>
+</view>
+<!-- 多规格选择 -->
+<view class="page-dialog-wrap" id="communityBuyDialog" catchtouchmove="stopMove" bindtap="closeGoodModel" hidden="{{showModel}}">
+  <view class="page-bottom-dialog" catchtap="stopPropagation">
+    <view class="pay-close-dialog page-dialog-close" bindtap="closeGoodModel">
+      <text class="ico-moon icon-closes"></text>
+    </view>
+    <view class="dialog-goods-header">
+      <view class="thumb">
+        <view class="thumb-wrap">
+          <image src="{{selectGoodsModelInfo.imgurl}}" class="pay-goods-cover"></image>
+        </view>
+      </view>
+      <view class="pay-goods-baseinfo">
+        <view class="pay-goods-price">
+          <view class="pay-current-price">
+            <view class="goods-describe-price" data-virtual="{{selectGoodsModelInfo.virtualPrice == 0.00 ? '' : '¥' + selectGoodsModelInfo.virtualPrice}}">
+              ¥ {{selectGoodsModelInfo.price}}
+            </view>
+          </view>
+          <view class="pay-goods-stock">库存 {{selectGoodsModelInfo.stock}}</view>
+          <view class="pay-checked-text clearfix">已选：{{selectGoodsModelInfo.models_text}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="communityBuyDialog-content">
+      <view class="pay-goods-models">
+        <view wx:for="{{ goodsInfo.model }}" wx:key="model.id" wx:for-item="model" wx:for-index="modelIndex">
+          <text class="model-title">{{model.name}}</text>
+          <label class="pills-list">
+            <label wx:for="{{ model.subModelName }}" wx:key="item.id" data-model-index="{{ modelIndex }}" data-submodel-index="{{ index }}" data-submodel-id="{{ model.subModelId[index] }}" class="subModel {{ selectGoodsModelInfo.models[modelIndex] == model.subModelId[index] ? 'select' : '' }}" bindtap="selectGoodsSubModel">
+              {{item}}
+            </label>
+          </label>
+        </view>
+      </view>
+      <view class="communityBuyDialog-buy-num" style="padding-left:10px;padding-right:10px;position:relative;">
+        <view class="clearfix">
+          <text>购买数量</text>
+          <view class="pull-right">
+            <view class="goods-add">
+              <view class="goods-minus" catchtap="clickGoodsMinusButton"> - </view>
+              <input class="goods-count" type="number" value="{{selectGoodsModelInfo.buyCount}}" bindinput="inputBuyCount"></input>
+              <view class="goods-plus" catchtap="clickGoodsPlusButton"> + </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="dialog-bottom" catchtap="addCark" data-param="{{selectGoodsModelInfo}}">
+      <view class="btn-orange pay-buy-next">确定</view>
+    </view>
+  </view>
+</view>`

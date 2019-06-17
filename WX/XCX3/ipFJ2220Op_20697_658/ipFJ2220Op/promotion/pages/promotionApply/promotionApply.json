@@ -1,0 +1,6 @@
+{
+    "navigationBarTitleText":"申请成为代言人",
+    "usingComponents":{
+        "component-getUserInfo": "/components/getUserInfo/getUserInfo"
+    }
+}

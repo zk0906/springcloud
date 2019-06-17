@@ -1,0 +1,100 @@
+<component-getUserInfo showGetUserInfo="{{showGetUserInfo}}"></component-getUserInfo>
+<view style="padding-bottom:150rpx">
+  <view class="apply-list apply-status">
+    <view>
+      <block wx:if="{{colonelInfo.is_audit == 2}}">
+        <label class="ico-moon icon-comLoad"></label>
+        <text>信息提交成功，请耐心等待商家审核</text>
+      </block>
+      <block wx:elif="{{colonelInfo.is_audit == 3}}">
+        <label class="ico-moon icon-comFaile"></label>
+        <text>审核未通过</text>
+      </block>
+      <block wx:else>
+        <label class="ico-moon icon-comFaile"></label>
+        <text>很抱歉，您暂无社区团长资格</text>
+      </block>
+    </view>
+  </view>
+  <view class="apply-content">
+    <view class="apply-list">
+      <view class="apply-list-item" style="line-height:109rpx;">
+        <view class="list-item-label">团长头像</view>
+        <view class="list-item-img">
+          <image src="{{colonelInfo.logo}}"></image>
+        </view>
+      </view>
+
+      <view class="apply-list-item">
+        <view class="list-item-label">团长名称</view>
+        <view class="list-item-input">
+          <input disabled="true" type="text" value="{{colonelInfo.nick_name}}"></input>
+        </view>
+      </view>
+
+      <view class="apply-list-item">
+        <view class="list-item-label">联系电话</view>
+        <view class="list-item-input">
+          <input disabled="true" type="number" maxlength="11" value="{{colonelInfo.phone}}"></input>
+        </view>
+      </view>
+
+      <view class="apply-list-item">
+        <view class="list-item-label">地区</view>
+        <view class="list-item-input ellipsis">
+          <input disabled="true" type="number" maxlength="11" value="{{colonelInfo.region_address}}"></input>
+        </view>
+      </view>
+
+      <view class="apply-list-item">
+        <view class="list-item-label">代理小区</view>
+        <view class="list-item-input">
+          <input disabled="true" type="text" value="{{colonelInfo.housing_estate}}"></input>
+        </view>
+      </view>
+
+      <view class="apply-list-item-auto">
+        <view><label>提货地址</label></view>
+        <view>{{colonelInfo.address_detail}}</view>
+      </view>
+
+      <view class="apply-refound" wx:if="{{colonelInfo.is_audit == 0 || colonelInfo.is_audit == 3}}">
+        <view class="list-item-label">{{colonelInfo.is_audit == 0 ? '删除原因' : '拒绝原因'}}</view>
+        <view class="list-item-textarea">{{colonelInfo.reason.audit || colonelInfo.reason.delete}}</view>
+      </view>
+    </view>
+  </view>
+  <view class="apply-content" style="margin-top:14rpx;" wx:if="{{showBtn}}">
+    <view class="apply-list">
+      <view class="apply-list-item" data-type="order" bindtap="turnToPage">
+        <view class="list-item-label">社区订单</view>
+        <view class="list-item-input ellipsis"></view>
+        <view class="list-item-icon">
+          <label class="ico-moon icon-rightarrow"></label>
+        </view>
+      </view>
+      <view class="apply-list-item" data-type="wirteOff" bindtap="turnToPage">
+        <view class="list-item-label">订单核销</view>
+        <view class="list-item-input ellipsis"></view>
+        <view class="list-item-icon">
+          <label class="ico-moon icon-rightarrow"></label>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="apply-explain" wx:if="{{explain != ''}}">
+    <text bindtap="showLeader">查看社区团长说明</text>
+  </view>
+</view>
+<view class="origin-btn">
+  <button type="default" bindtap="applyModify">修改信息</button>
+</view>
+<view class="apply-info" wx:if="{{showLeader}}">
+  <view class="apply-info-message">
+    <view class="message-title">团长说明</view>
+    <view class="message-text">
+      <view wx:for="{{explain}}" wx:key="{{}}">{{item}}</view>
+    </view>
+    <view class="message-btn" bindtap="showLeader">知道了</view>
+  </view>
+</view>
